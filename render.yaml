@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: caselogger-api
+    runtime: docker
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./api
+    plan: free
+    envVars:
+      # Prompted for in Render's own dashboard during setup — never stored
+      # in this repo. Paste the real Atlas connection string there.
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: case_logger
+      # Render generates a fresh random value on deploy — not the dev secret.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_LIFETIME_SECONDS
+        value: "43200"
+      # Update this to your actual Vercel URL once it's assigned.
+      - key: CORS_ORIGINS
+        value: '["https://caselogger.vercel.app"]'

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'REPLACE_ME', // set to the deployed API URL at build time
+  apiUrl: 'https://caselogger-api.onrender.com', // matches render.yaml's service name
   useMockAuth: false,
 };
