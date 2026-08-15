@@ -17,6 +17,9 @@ services:
         generateValue: true
       - key: JWT_LIFETIME_SECONDS
         value: "43200"
-      # Update this to your actual Vercel URL once it's assigned.
+      # sync: false — managed directly in Render's dashboard/API, not here.
+      # A hardcoded value here was getting silently re-applied on every
+      # deploy (Blueprint sync re-asserts synced env vars from this file),
+      # wiping out the real Vercel URL each time it was set via the API.
       - key: CORS_ORIGINS
-        value: '["https://caselogger.vercel.app"]'
+        sync: false
