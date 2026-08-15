@@ -33,14 +33,19 @@
             <span class="nav-label">{{ item.label }}</span>
           </a>
         } @else {
-          <a class="nav-link nav-parent" [routerLink]="item.path" [class.nav-link-active]="isParentActive(item)">
+          <a
+            class="nav-link nav-parent"
+            [routerLink]="item.path"
+            [class.nav-link-active]="isParentActive(item)"
+            (click)="toggleSection(item)"
+          >
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path [attr.d]="navIconPath(item.label)" />
             </svg>
             <span class="nav-label">{{ item.label }}</span>
-            <app-icon name="expand_more" class="chevron" [class.chevron-open]="isParentActive(item)" />
+            <app-icon name="expand_more" class="chevron" [class.chevron-open]="isExpanded(item)" />
           </a>
-          <div class="nav-children" [class.nav-children-open]="isParentActive(item)">
+          <div class="nav-children" [class.nav-children-open]="isExpanded(item)">
             <div class="nav-children-inner">
               @for (child of item.children; track child.path) {
                 <a

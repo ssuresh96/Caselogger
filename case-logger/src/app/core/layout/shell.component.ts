@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -83,6 +83,15 @@ export class ShellComponent {
   readonly sidebarCollapsed = signal(false);
   readonly mobileNavOpen = signal(false);
 
+  // Which collapsible section (Reports/Admin) is expanded — defaults to
+  // whichever one the current route is inside, but a click on the parent
+  // can close it without navigating away, which isParentActive() alone
+  // could never do (re-navigating to an already-active route is a no-op,
+  // so the old [class.nav-children-open]="isParentActive(item)" binding
+  // could only ever stay open for as long as you stayed in that section).
+  readonly openSection = signal<string | null>(null);
+  private lastActiveSection: string | null = null;
+
   readonly currentUrl = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -136,6 +145,30 @@ export class ShellComponent {
       ],
     },
   ];
+
+  constructor() {
+    // Fresh entry into a section (from outside it, or from another
+    // collapsible section) auto-expands it. Re-runs only on an actual
+    // section change, so a manual close via toggleSection() below — which
+    // doesn't change the URL — is never immediately undone by this.
+    effect(() => {
+      const url = this.currentUrl();
+      const active = this.navItems.find((i) => i.activePrefix && url.startsWith(i.activePrefix));
+      const activeLabel = active?.label ?? null;
+      if (activeLabel !== this.lastActiveSection) {
+        this.lastActiveSection = activeLabel;
+        this.openSection.set(activeLabel);
+      }
+    });
+  }
+
+  isExpanded(item: NavItem): boolean {
+    return this.openSection() === item.label;
+  }
+
+  toggleSection(item: NavItem) {
+    this.openSection.set(this.openSection() === item.label ? null : item.label);
+  }
 
   toggleNav() {
     this.sidebarCollapsed.update((v) => !v);
