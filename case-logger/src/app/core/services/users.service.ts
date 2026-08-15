@@ -105,7 +105,7 @@ export class UsersService {
       return user;
     }
     const created = await firstValueFrom(
-      this.http.post<AdminUser>(`${environment.apiUrl}/auth/register`, input),
+      this.http.post<AdminUser>(`${environment.apiUrl}/users`, input),
     );
     this.refresh$.next();
     return created;

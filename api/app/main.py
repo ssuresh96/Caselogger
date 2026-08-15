@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.auth.dependencies import current_superuser, fastapi_users
+from app.auth.dependencies import fastapi_users
 from app.auth.backend import auth_backend
-from app.auth.router import router as users_list_router
-from app.auth.schemas import UserCreate, UserRead, UserUpdate
+from app.auth.router import router as users_router
+from app.auth.schemas import UserRead, UserUpdate
 from app.cases.router import router as cases_router
 from app.core.config import settings
 from app.core.database import init_db
@@ -43,21 +43,14 @@ app.include_router(
     dependencies=[Depends(rate_limit_login)],
 )
 
-# Registration is admin-only — this is an internal tool with admin-provisioned
-# accounts, not public sign-up. See plan §5/T1.4.
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
-    tags=["auth"],
-    dependencies=[Depends(current_superuser)],
-)
-
 # /users/me (any authed user) + admin-only patch/delete of a specific user.
 app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/users", tags=["users"]
 )
-# GET /users (list) — fastapi-users doesn't provide this out of the box.
-app.include_router(users_list_router)
+# GET /users (list), POST /users (admin-provisioned create — not
+# fastapi-users' /auth/register, see app/auth/router.py's create_user for
+# why), POST /users/{id}/unlock.
+app.include_router(users_router)
 
 # --- App routers ---
 app.include_router(cases_router)

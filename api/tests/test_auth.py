@@ -38,31 +38,50 @@ async def test_password_policy_accepts_strong_password():
     await manager.validate_password("SecurePass!2026", fake_user)  # no raise
 
 
-async def test_register_requires_superuser(client: AsyncClient, regular_user_token: str):
+async def test_create_user_requires_superuser(client: AsyncClient, regular_user_token: str):
     resp = await client.post(
-        "/auth/register",
+        "/users",
         json={"email": "new@caselogger.internal", "password": "SecurePass!2026", "name": "New"},
         headers=_auth(regular_user_token),
     )
     assert resp.status_code == 403
 
 
-async def test_register_requires_auth_at_all(client: AsyncClient):
+async def test_create_user_requires_auth_at_all(client: AsyncClient):
     resp = await client.post(
-        "/auth/register",
+        "/users",
         json={"email": "new@caselogger.internal", "password": "SecurePass!2026", "name": "New"},
     )
     assert resp.status_code == 401
 
 
-async def test_register_as_superuser_succeeds(client: AsyncClient, superuser_token: str):
+async def test_create_user_as_superuser_succeeds(client: AsyncClient, superuser_token: str):
     resp = await client.post(
-        "/auth/register",
+        "/users",
         json={"email": "new@caselogger.internal", "password": "SecurePass!2026", "name": "New"},
         headers=_auth(superuser_token),
     )
     assert resp.status_code == 201, resp.text
     assert resp.json()["email"] == "new@caselogger.internal"
+    assert resp.json()["isSuperuser"] is False
+
+
+async def test_create_user_honors_is_superuser(client: AsyncClient, superuser_token: str):
+    # The bug this guards against: fastapi-users' own /auth/register
+    # hardcodes safe=True and silently drops isSuperuser from the body
+    # regardless of who's calling it — this app's POST /users must not.
+    resp = await client.post(
+        "/users",
+        json={
+            "email": "new-admin@caselogger.internal",
+            "password": "SecurePass!2026",
+            "name": "New Admin",
+            "isSuperuser": True,
+        },
+        headers=_auth(superuser_token),
+    )
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["isSuperuser"] is True
 
 
 async def test_login_wrong_password_fails(client: AsyncClient, superuser: User):

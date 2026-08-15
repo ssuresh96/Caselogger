@@ -4,9 +4,13 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi import status as http_status
+from fastapi_users import BaseUserManager
+from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists
 
 from app.auth.dependencies import current_active_user, current_superuser
+from app.auth.manager import get_user_manager
 from app.auth.models import User
+from app.auth.schemas import UserCreate
 from app.common.camel import CamelModel
 from app.common.object_id import PyObjectId
 
@@ -54,6 +58,44 @@ async def list_users(
         )
         for u in users
     ]
+
+
+@router.post("", response_model=UserSummaryOut, status_code=http_status.HTTP_201_CREATED)
+async def create_user(
+    user_create: UserCreate,
+    _admin: User = Depends(current_superuser),
+    user_manager: BaseUserManager = Depends(get_user_manager),
+) -> UserSummaryOut:
+    """Admin-provisioned account creation (plan §5/T1.4 — this is an
+    internal tool, not public sign-up). Deliberately not fastapi-users'
+    own /auth/register: that route hardcodes `safe=True` on every call
+    regardless of who's authenticated, which silently drops isSuperuser/
+    isVerified from the body — a guard meant for a *public* registration
+    endpoint to stop self-escalation, wrongly applied to one that's
+    already admin-gated. This route is gated the same way but honors the
+    caller's isSuperuser choice, same as the PATCH update route below
+    (fastapi-users' own get_users_router already uses safe=False there —
+    only /auth/register was the mismatched one)."""
+    try:
+        user = await user_manager.create(user_create, safe=False)
+    except UserAlreadyExists as exc:
+        raise HTTPException(
+            http_status.HTTP_400_BAD_REQUEST, "REGISTER_USER_ALREADY_EXISTS"
+        ) from exc
+    except InvalidPasswordException as exc:
+        raise HTTPException(
+            http_status.HTTP_400_BAD_REQUEST,
+            {"code": "REGISTER_INVALID_PASSWORD", "reason": exc.reason},
+        ) from exc
+
+    return UserSummaryOut(
+        id=user.id,
+        name=user.name,
+        email=user.email,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
+        is_locked=False,
+    )
 
 
 @router.post("/{user_id}/unlock", response_model=UserSummaryOut)
