@@ -13,6 +13,9 @@
 }
 
 .breadcrumb {
+  // Bootstrap's own `.breadcrumb` also sets flex-wrap: wrap — same
+  // collision family as .nav/.card/.toast elsewhere in this app.
+  flex-wrap: nowrap;
   display: flex;
   align-items: center;
   gap: 2px;

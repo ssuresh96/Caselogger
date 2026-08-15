@@ -59,6 +59,13 @@
 }
 
 .nav {
+  // Bootstrap's own `.nav` component (Navs & Tabs) sets flex-wrap: wrap —
+  // same collision pattern as .toast/.card elsewhere in this app. Left
+  // unset here, it won by cascade: once the sidebar's items exceeded the
+  // container's height, flex-wrap:wrap started a second column instead of
+  // just letting overflow-y:auto scroll, and that column sat entirely
+  // outside the sidebar's fixed width — invisible, not "missing".
+  flex-wrap: nowrap;
   flex: 1;
   display: flex;
   flex-direction: column;
