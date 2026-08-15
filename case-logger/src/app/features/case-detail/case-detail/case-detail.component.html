@@ -1,0 +1,463 @@
+@if (item(); as caseItem) {
+  <div class="detail-page">
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">
+          <a routerLink="/cases">All Cases</a>
+          <app-icon name="chevron_right" />
+          <span>{{ caseItem.caseId }}</span>
+        </div>
+        <div class="title-row">
+          <h2>{{ title() }}</h2>
+          <app-badge [tone]="referenceData.typeTone(caseItem.type)" [label]="referenceData.typeLabel(caseItem.type)" />
+        </div>
+      </div>
+      <div class="header-actions">
+        @if (!isEditing()) {
+          <button type="button" class="btn-ghost" (click)="startEdit()">
+            <app-icon name="edit" />
+            Edit
+          </button>
+        }
+        <div ngbDropdown container="body">
+          <button type="button" class="btn-ghost icon-only" id="moreMenuToggle" ngbDropdownToggle aria-label="More actions">
+            <app-icon name="more_horiz" />
+          </button>
+          <div ngbDropdownMenu aria-labelledby="moreMenuToggle">
+            <button ngbDropdownItem type="button">Print case</button>
+            <button ngbDropdownItem type="button">Link implementation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Case ID</span>
+        <span class="meta-value">{{ caseItem.caseId }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Reported Date</span>
+        <span class="meta-value">{{ caseItem.reportedDate | date: 'd MMM y, h:mm a' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Customer</span>
+        <span class="meta-value">{{ caseItem.customer }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <app-status-select
+          [ngModel]="caseItem.status"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateStatus($event)"
+          [options]="statusSelectOptions()"
+        />
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Assigned To</span>
+        <span class="meta-value assignee">
+          <span class="avatar-sm">{{ initials() }}</span>
+          {{ caseItem.assignedTo.name }}
+        </span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button type="button" [class.tab-active]="activeTab() === 'details'" (click)="setTab('details')">Details</button>
+      <button type="button" [class.tab-active]="activeTab() === 'activity'" (click)="setTab('activity')">Activity</button>
+    </div>
+
+    @if (activeTab() === 'details') {
+      <div class="details-layout">
+      <div class="details-main">
+        <div class="card">
+          @if (!isEditing()) {
+            <h3>Description</h3>
+            <p class="description-text">{{ caseItem.description }}</p>
+
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Reported By</span>
+                <span class="info-value">{{ caseItem.reporterName }} ({{ caseItem.reporterType }})</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Product</span>
+                <span class="info-value">{{ caseItem.product }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Category</span>
+                <span class="info-value">{{ caseItem.category }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Imp/Supp</span>
+                <span class="info-value">{{ caseItem.type }}</span>
+              </div>
+              @if (caseItem.market) {
+                <div class="info-item">
+                  <span class="info-label">Market</span>
+                  <span class="info-value">{{ caseItem.market }}</span>
+                </div>
+              }
+              @if (caseItem.dateOfClosure) {
+                <div class="info-item">
+                  <span class="info-label">Date of Closure</span>
+                  <span class="info-value">{{ caseItem.dateOfClosure | date: 'd MMM y, h:mm a' }}</span>
+                </div>
+              }
+              @if (caseItem.resolution) {
+                <div class="info-item">
+                  <span class="info-label">Resolution</span>
+                  <span class="info-value">{{ caseItem.resolution }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="edit-form-header">
+              <h3>Edit Case</h3>
+              <span class="last-saved">Last saved {{ caseItem.updatedAt | date: 'd MMM, h:mm a' }}</span>
+            </div>
+            <form [formGroup]="editForm" class="edit-form">
+              <label class="field">
+                <span>Reported By Type <b class="req">*</b></span>
+                <select formControlName="reporterType">
+                  @for (type of reporterTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </label>
+              <label class="field">
+                <span>Reported By Name <b class="req">*</b></span>
+                <input type="text" formControlName="reporterName" />
+              </label>
+              <label class="field">
+                <span>Customer <b class="req">*</b></span>
+                <input type="text" formControlName="customer" />
+              </label>
+              <label class="field">
+                <span>Product <b class="req">*</b></span>
+                <app-select formControlName="product" placeholder="Select product" [options]="productOptions()" />
+              </label>
+              <label class="field">
+                <span>Category <b class="req">*</b></span>
+                <app-select formControlName="category" placeholder="Select category" [options]="categoryOptions()" />
+              </label>
+              <label class="field">
+                <span>Imp/Supp <b class="req">*</b></span>
+                <app-select formControlName="type" placeholder="Select type" [options]="typeOptions()" />
+              </label>
+              <label class="field">
+                <span>Assigned To <b class="req">*</b></span>
+                <app-select formControlName="assignedTo" placeholder="Select user" [options]="userOptions()" />
+              </label>
+              <label class="field">
+                <span>Market</span>
+                <input type="text" formControlName="market" />
+              </label>
+              <label class="field field-full">
+                <span>Description <b class="req">*</b></span>
+                <textarea rows="4" formControlName="description"></textarea>
+              </label>
+            </form>
+
+            <div class="edit-actions">
+              <button type="button" class="btn-ghost" (click)="cancelEdit()">Cancel</button>
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="editForm.invalid || savingEdit()"
+                (click)="saveEdit()"
+              >
+                @if (savingEdit()) {
+                  <app-spinner />
+                }
+                {{ savingEdit() ? 'Saving…' : 'Save Changes' }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="side-cards">
+        <div class="card remarks-card">
+          <div class="remarks-header">
+            <h3>Remarks</h3>
+            @if (!isEditingRemarks()) {
+              <button type="button" class="btn-ghost icon-only" (click)="startEditRemarks()" aria-label="Edit remarks">
+                <app-icon name="edit" />
+              </button>
+            }
+          </div>
+          @if (isEditingRemarks()) {
+            <textarea
+              rows="4"
+              placeholder="Add remarks about this case..."
+              [ngModel]="remarksDraft()"
+              (ngModelChange)="remarksDraft.set($event)"
+            ></textarea>
+            <div class="remarks-actions">
+              <button type="button" class="btn-ghost" (click)="cancelEditRemarks()">Cancel</button>
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="!remarksDirty() || savingRemarks()"
+                (click)="saveRemarks()"
+              >
+                @if (savingRemarks()) {
+                  <app-spinner />
+                }
+                {{ savingRemarks() ? 'Saving…' : 'Save Remarks' }}
+              </button>
+            </div>
+          } @else if (caseItem.remarks) {
+            <p class="remarks-preview">{{ caseItem.remarks }}</p>
+          } @else {
+            <p class="remarks-preview remarks-empty">No remarks yet.</p>
+          }
+        </div>
+
+        @if (bugAllowed() || taskAllowed() || woAllowed()) {
+          <div class="card reference-numbers-card">
+            <div class="remarks-header">
+              <h3>Bug / Task / Workorder</h3>
+              @if (!isEditingReferenceNumbers()) {
+                <button
+                  type="button"
+                  class="btn-ghost icon-only"
+                  (click)="startEditReferenceNumbers()"
+                  aria-label="Edit Bug/Task/Workorder numbers"
+                >
+                  <app-icon name="edit" />
+                </button>
+              }
+            </div>
+
+            @if (!isEditingReferenceNumbers()) {
+              <p class="reference-hint">{{ referenceHintText() }}</p>
+              @if (caseItem.bugNumber || caseItem.taskNumbers.length || caseItem.workOrderNumbers.length) {
+                <div class="reference-groups">
+                  @if (caseItem.bugNumber) {
+                    <div class="reference-group reference-group-bug">
+                      <span class="reference-group-label">Bug Number</span>
+                      <div class="reference-chip-row">
+                        <span class="reference-chip">{{ caseItem.bugNumber }}</span>
+                      </div>
+                    </div>
+                  }
+                  @if (caseItem.taskNumbers.length) {
+                    <div class="reference-group reference-group-task">
+                      <span class="reference-group-label">Task Numbers</span>
+                      <div class="reference-chip-row">
+                        @for (task of caseItem.taskNumbers; track task) {
+                          <span class="reference-chip">{{ task }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @if (caseItem.workOrderNumbers.length) {
+                    <div class="reference-group reference-group-wo">
+                      <span class="reference-group-label">WO Numbers</span>
+                      <div class="reference-chip-row">
+                        @for (wo of caseItem.workOrderNumbers; track wo) {
+                          <span class="reference-chip">{{ wo }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="remarks-preview remarks-empty">No Bug/Task/Workorder numbers set.</p>
+              }
+            } @else {
+              <div class="reference-checkboxes">
+                @if (bugAllowed()) {
+                  <label class="checkbox-field">
+                    <input
+                      type="checkbox"
+                      [ngModel]="bugEnabled()"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="bugEnabled.set($event)"
+                    />
+                    Bug
+                  </label>
+                }
+                @if (taskAllowed()) {
+                  <label class="checkbox-field">
+                    <input
+                      type="checkbox"
+                      [ngModel]="taskEnabled()"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="taskEnabled.set($event)"
+                    />
+                    Task
+                  </label>
+                }
+                @if (woAllowed()) {
+                  <label class="checkbox-field">
+                    <input
+                      type="checkbox"
+                      [ngModel]="woEnabled()"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="woEnabled.set($event)"
+                    />
+                    Workorder
+                  </label>
+                }
+              </div>
+
+              @if (bugAllowed() && bugEnabled()) {
+                <label class="field">
+                  <span>Bug Number</span>
+                  <input
+                    type="text"
+                    [ngModel]="bugNumberDraft()"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="bugNumberDraft.set($event)"
+                  />
+                </label>
+              }
+
+              @if (taskAllowed() && taskEnabled()) {
+                <div class="chip-list-field">
+                  <span>Task Numbers</span>
+                  <div class="chip-list">
+                    @for (task of taskNumbersDraft(); track $index) {
+                      <span class="chip">
+                        {{ task }}
+                        <button type="button" (click)="removeTaskNumber($index)" aria-label="Remove">
+                          <app-icon name="close" />
+                        </button>
+                      </span>
+                    }
+                  </div>
+                  <div class="chip-add-row">
+                    <input
+                      type="text"
+                      placeholder="Add task number…"
+                      [ngModel]="newTaskNumber()"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="newTaskNumber.set($event)"
+                      (keyup.enter)="addTaskNumber()"
+                    />
+                    <button type="button" class="btn-ghost" (click)="addTaskNumber()">Add</button>
+                  </div>
+                </div>
+              }
+
+              @if (woAllowed() && woEnabled()) {
+                <div class="chip-list-field">
+                  <span>WO Numbers</span>
+                  <div class="chip-list">
+                    @for (wo of workOrderNumbersDraft(); track $index) {
+                      <span class="chip">
+                        {{ wo }}
+                        <button type="button" (click)="removeWorkOrderNumber($index)" aria-label="Remove">
+                          <app-icon name="close" />
+                        </button>
+                      </span>
+                    }
+                  </div>
+                  <div class="chip-add-row">
+                    <input
+                      type="text"
+                      placeholder="Add WO number…"
+                      [ngModel]="newWorkOrderNumber()"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="newWorkOrderNumber.set($event)"
+                      (keyup.enter)="addWorkOrderNumber()"
+                    />
+                    <button type="button" class="btn-ghost" (click)="addWorkOrderNumber()">Add</button>
+                  </div>
+                </div>
+              }
+
+              <div class="remarks-actions">
+                <button type="button" class="btn-ghost" (click)="cancelEditReferenceNumbers()">Cancel</button>
+                <button
+                  type="button"
+                  class="btn-primary"
+                  [disabled]="savingReferenceNumbers()"
+                  (click)="saveReferenceNumbers()"
+                >
+                  @if (savingReferenceNumbers()) {
+                    <app-spinner />
+                  }
+                  {{ savingReferenceNumbers() ? 'Saving…' : 'Save' }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+        </div>
+      </div>
+
+        <div class="card timeline-card">
+          <h3>Activity Timeline</h3>
+          @if (activity().length) {
+            <ul class="timeline">
+              @for (entry of activity(); track entry.id) {
+                <li [class.timeline-comment]="entry.entryType === 'comment'">
+                  <div class="timeline-rail">
+                    <span class="timeline-avatar">{{ entryInitials(entry.user.name) }}</span>
+                    <span class="timeline-connector"></span>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-head">
+                      <span class="timeline-author">{{ entry.user.name }}</span>
+                      <span class="timeline-time">{{ entry.createdAt | date: 'd MMM y, h:mm a' }}</span>
+                    </div>
+                    <p>{{ entry.changeSummary }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-hint">No activity yet.</p>
+          }
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'activity') {
+      <div class="card timeline-card timeline-full">
+        <h3>Activity Timeline</h3>
+        @if (activity().length) {
+          <ul class="timeline">
+            @for (entry of activity(); track entry.id) {
+              <li [class.timeline-comment]="entry.entryType === 'comment'">
+                <span class="timeline-avatar">{{ entryInitials(entry.user.name) }}</span>
+                <div class="timeline-body">
+                  <div class="timeline-head">
+                    <span class="timeline-author">{{ entry.user.name }}</span>
+                    <span class="timeline-time">{{ entry.createdAt | date: 'd MMM y, h:mm a' }}</span>
+                  </div>
+                  <p>{{ entry.changeSummary }}</p>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-hint">No activity yet.</p>
+        }
+        <div class="comment-box">
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            [ngModel]="commentDraft()"
+            (ngModelChange)="commentDraft.set($event)"
+            (keyup.enter)="postComment()"
+          />
+          <button type="button" [disabled]="postingComment()" (click)="postComment()">Post</button>
+        </div>
+      </div>
+    }
+  </div>
+} @else if (loading()) {
+  <div class="detail-loading">
+    <app-spinner size="lg" />
+    <p>Loading case…</p>
+  </div>
+} @else {
+  <div class="not-found">
+    <p>Case not found.</p>
+    <a routerLink="/cases">Back to All Cases</a>
+  </div>
+}

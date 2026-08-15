@@ -1,0 +1,75 @@
+:host {
+  display: inline-block;
+}
+
+.status-select-shell {
+  position: relative;
+}
+
+.status-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px 9px;
+  background: var(--surface);
+  cursor: pointer;
+  min-width: 132px;
+
+  app-icon {
+    flex: none;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+}
+
+.status-select-open .status-select-trigger {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.status-select-spacer {
+  flex: 1;
+}
+
+.status-select-placeholder {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.status-select-panel {
+  position: fixed;
+  z-index: 1200;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 6px;
+}
+
+.status-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--page-bg);
+  }
+}
+
+.status-select-hint {
+  flex: 1;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.status-select-check {
+  flex: none;
+  color: var(--accent);
+  font-size: 12px;
+}

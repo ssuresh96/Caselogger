@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+.line-chart {
+  width: 100%;
+}
+
+.line-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.gridline {
+  stroke: var(--chart-gridline);
+  stroke-width: 1;
+}
+
+.axis-label {
+  fill: var(--text-muted);
+  font-size: 9px;
+  font-family: inherit;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+}

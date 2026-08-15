@@ -1,0 +1,15 @@
+<div class="dialog-header">
+  <app-icon name="warning" [class.icon-danger]="data.danger" />
+  <h2>{{ data.title }}</h2>
+</div>
+
+<div class="dialog-content">
+  <p>{{ data.message }}</p>
+</div>
+
+<div class="dialog-actions">
+  <button type="button" class="btn-ghost" (click)="cancel()">{{ data.cancelLabel ?? 'Cancel' }}</button>
+  <button type="button" [class]="data.danger ? 'btn-danger' : 'btn-primary'" (click)="confirm()">
+    {{ data.confirmLabel ?? 'Confirm' }}
+  </button>
+</div>

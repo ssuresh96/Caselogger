@@ -1,0 +1,136 @@
+<div class="dashboard">
+  <div class="page-header">
+    <div>
+      <h2>Welcome back, {{ firstName() }}!</h2>
+      <p>Here's what's happening with your cases today.</p>
+    </div>
+    <button type="button" class="new-case-btn" (click)="openCreateCase()">
+      <app-icon name="add" />
+      New Case
+    </button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon icon-blue"><app-icon name="folder_open" /></div>
+      <div class="stat-body">
+        <span class="stat-label">My Open Cases</span>
+        <span class="stat-value">
+          @if (loading()) {
+            <app-spinner />
+          } @else {
+            {{ myOpenCount() }}
+          }
+        </span>
+        <a routerLink="/my-cases" class="stat-link">View all</a>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon icon-violet"><app-icon name="inbox" /></div>
+      <div class="stat-body">
+        <span class="stat-label">All Open Cases</span>
+        <span class="stat-value">
+          @if (loading()) {
+            <app-spinner />
+          } @else {
+            {{ allOpenCount() }}
+          }
+        </span>
+        <a routerLink="/cases" class="stat-link">View all</a>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon icon-amber"><app-icon name="schedule" /></div>
+      <div class="stat-body">
+        <span class="stat-label">Pending with Others</span>
+        <span class="stat-value">
+          @if (loading()) {
+            <app-spinner />
+          } @else {
+            {{ pendingCount() }}
+          }
+        </span>
+        <a routerLink="/cases" class="stat-link">View all</a>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon icon-green"><app-icon name="check_circle" /></div>
+      <div class="stat-body">
+        <span class="stat-label">Resolved Cases</span>
+        <span class="stat-value">
+          @if (loading()) {
+            <app-spinner />
+          } @else {
+            {{ resolvedCount() }}
+          }
+        </span>
+        <span class="stat-caption">This month</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="card chart-card">
+      <div class="card-header">
+        <h3>Case Overview</h3>
+      </div>
+      <app-line-chart [labels]="caseOverviewLabels" [series]="caseOverviewSeries" />
+    </div>
+
+    <div class="card chart-card donut-card">
+      <div class="card-header">
+        <h3>Open Cases by Type</h3>
+      </div>
+      @if (loading()) {
+        <div class="donut-loading">
+          <app-spinner size="lg" />
+        </div>
+      } @else {
+        <app-donut-chart [segments]="typeDonut()" centerLabel="Open" />
+      }
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="card-header">
+      <h3>Recent Cases</h3>
+      <a routerLink="/cases" class="view-all-link">View all</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Case ID</th>
+            <th>Description</th>
+            <th>Customer</th>
+            <th>Category</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Updated On</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading() && !recentCases().length) {
+            <tr>
+              <td colspan="7" class="loading-row">
+                <app-spinner />
+                Loading recent cases…
+              </td>
+            </tr>
+          }
+          @for (item of recentCases(); track item.id) {
+            <tr [routerLink]="['/cases', item.id]" class="clickable-row">
+              <td class="case-id">{{ item.caseId }}</td>
+              <td class="truncate-cell">{{ item.description }}</td>
+              <td>{{ item.customer }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.assignedTo.name }}</td>
+              <td><app-badge [tone]="referenceData.statusTone(item.status)" [label]="referenceData.statusLabel(item.status)" /></td>
+              <td>{{ item.updatedAt | date: 'd MMM y, h:mm a' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

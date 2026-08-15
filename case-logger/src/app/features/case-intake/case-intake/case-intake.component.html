@@ -1,0 +1,103 @@
+<div class="dialog-header">
+  <div>
+    <h2>Create New Case</h2>
+    <p class="dialog-subtitle">Fields marked * are required before the case can be created</p>
+  </div>
+  <button type="button" class="close-btn" (click)="close()" aria-label="Close">
+    <app-icon name="close" />
+  </button>
+</div>
+
+<div class="dialog-content">
+  <form [formGroup]="form" class="form-grid">
+    <label class="field">
+      <span>Reported Date <b class="req">*</b></span>
+      <app-date-picker formControlName="reportedDate" />
+    </label>
+
+    <label class="field">
+      <span>Reported By Type <b class="req">*</b></span>
+      <select formControlName="reporterType">
+        @for (type of reporterTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Reported By Name <b class="req">*</b></span>
+      <input type="text" formControlName="reporterName" placeholder="Name of the person who reported it" />
+    </label>
+
+    <label class="field">
+      <span>Customer <b class="req">*</b></span>
+      <input type="text" formControlName="customer" placeholder="Customer or agency name" />
+    </label>
+
+    <label class="field">
+      <span>Product Name <b class="req">*</b></span>
+      <app-select
+        formControlName="product"
+        placeholder="Select product"
+        searchPlaceholder="Search products…"
+        [options]="productOptions()"
+      />
+    </label>
+
+    <label class="field field-full">
+      <span>Description <b class="req">*</b></span>
+      <textarea rows="4" formControlName="description" placeholder="Describe the issue in detail..."></textarea>
+    </label>
+
+    <label class="field">
+      <span>Category <b class="req">*</b></span>
+      <app-select
+        formControlName="category"
+        placeholder="Select category"
+        searchPlaceholder="Search categories…"
+        [options]="categoryOptions()"
+      />
+    </label>
+
+    <label class="field">
+      <span>Assigned To <b class="req">*</b></span>
+      <app-select
+        formControlName="assignedTo"
+        placeholder="Select user"
+        searchPlaceholder="Search users…"
+        [options]="userOptions()"
+      />
+    </label>
+
+    <label class="field">
+      <span>Pending (Status) <b class="req">*</b></span>
+      <select formControlName="status">
+        @for (status of statuses(); track status.id) {
+          <option [value]="status.value">{{ status.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Imp/Supp <b class="req">*</b></span>
+      <select formControlName="type">
+        @for (type of types(); track type.id) {
+          <option [value]="type.value">{{ type.name }}</option>
+        }
+      </select>
+    </label>
+  </form>
+</div>
+
+<div class="dialog-actions">
+  <span class="dialog-footnote">Case ID is generated on save</span>
+  <button type="button" class="btn-ghost" (click)="close()">Cancel</button>
+  <button type="button" class="btn-primary" (click)="submit()" [disabled]="form.invalid || submitting()">
+    @if (submitting()) {
+      <app-spinner />
+    } @else {
+      <app-icon name="send" />
+    }
+    {{ submitting() ? 'Creating…' : 'Create Case' }}
+  </button>
+</div>

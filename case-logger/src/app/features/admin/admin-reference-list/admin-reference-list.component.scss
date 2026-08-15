@@ -1,0 +1,242 @@
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.35rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  white-space: nowrap;
+
+  app-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--accent-strong);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.card {
+  // Bootstrap's own `.card` component sets display:flex globally; without
+  // an explicit override here it wins and stretches non-block children.
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.add-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+
+  input[type='text'],
+  select {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+}
+
+.field-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  grid-column: 1 / -1;
+
+  input {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
+
+.field-checkbox-group {
+  grid-column: 1 / -1;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+
+  legend {
+    flex-basis: 100%;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0;
+    margin-bottom: 4px;
+  }
+
+  .field-checkbox {
+    grid-column: auto;
+    font-weight: 400;
+  }
+}
+
+.add-form .primary-btn {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th {
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.row-label {
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.tone-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.tone-good {
+  background: var(--status-good);
+}
+.tone-warning {
+  background: var(--status-warning);
+}
+.tone-progress {
+  background: var(--status-progress);
+}
+.tone-info {
+  background: var(--accent);
+}
+.tone-serious {
+  background: var(--status-serious);
+}
+.tone-critical {
+  background: var(--status-critical);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--page-bg);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+}
+
+.chip-active {
+  background: var(--status-good-tint);
+  color: var(--status-good-text);
+  border-color: transparent;
+}
+
+.empty-row {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px 20px;
+}

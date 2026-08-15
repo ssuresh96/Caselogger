@@ -1,0 +1,36 @@
+<div class="donut-chart">
+  <div class="donut-svg-wrap">
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" [attr.r]="radius" fill="none" stroke="var(--chart-gridline)" stroke-width="16" />
+      @for (seg of plotted(); track seg.label) {
+        <circle
+          cx="60"
+          cy="60"
+          [attr.r]="radius"
+          fill="none"
+          [attr.stroke]="seg.color"
+          stroke-width="16"
+          [attr.stroke-dasharray]="seg.dashArray"
+          [attr.stroke-dashoffset]="seg.dashOffset"
+          transform="rotate(-90 60 60)"
+        >
+          <title>{{ seg.label }}: {{ seg.value }} ({{ seg.percent }}%)</title>
+        </circle>
+      }
+    </svg>
+    <div class="donut-center">
+      <span class="donut-total">{{ total() }}</span>
+      <span class="donut-total-label">{{ centerLabel() }}</span>
+    </div>
+  </div>
+
+  <ul class="legend">
+    @for (seg of plotted(); track seg.label) {
+      <li>
+        <span class="dot" [style.background]="seg.color"></span>
+        <span class="legend-label">{{ seg.label }}</span>
+        <span class="legend-value">({{ seg.value }})</span>
+      </li>
+    }
+  </ul>
+</div>

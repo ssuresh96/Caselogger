@@ -1,0 +1,118 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div>
+      <h2>Users</h2>
+      <p>{{ users().length }} user{{ users().length === 1 ? '' : 's' }} · manage roles and access</p>
+    </div>
+    <button type="button" class="primary-btn" (click)="toggleAddForm()">
+      <app-icon [name]="showAddForm() ? 'close' : 'add'" />
+      {{ showAddForm() ? 'Cancel' : 'Add User' }}
+    </button>
+  </div>
+
+  @if (showAddForm()) {
+    <div class="card">
+      <form [formGroup]="form" class="add-form" (ngSubmit)="submitAdd()">
+        <label class="field">
+          <span>Name *</span>
+          <input type="text" formControlName="name" placeholder="Full name" />
+        </label>
+        <label class="field">
+          <span>Email *</span>
+          <input type="email" formControlName="email" placeholder="name@company.com" />
+        </label>
+        <label class="field">
+          <span>Temporary Password *</span>
+          <input type="text" formControlName="password" placeholder="At least 8 characters" />
+        </label>
+        <label class="field field-checkbox">
+          <input type="checkbox" formControlName="isSuperuser" />
+          <span>Admin access</span>
+        </label>
+        @if (errorMessage()) {
+          <p class="error-text">{{ errorMessage() }}</p>
+        }
+        <button type="submit" class="primary-btn" [disabled]="form.invalid || submitting()">
+          @if (submitting()) {
+            <app-spinner />
+          }
+          {{ submitting() ? 'Creating…' : 'Create User' }}
+        </button>
+      </form>
+    </div>
+  }
+
+  <div class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Security</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr>
+              <td class="row-label">{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="chip"
+                  [class.chip-admin]="user.isSuperuser"
+                  [disabled]="isSelf(user)"
+                  [title]="isSelf(user) ? 'You cannot change your own role' : 'Toggle admin access'"
+                  (click)="toggleRole(user)"
+                >
+                  {{ user.isSuperuser ? 'Admin' : 'Agent' }}
+                </button>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="chip"
+                  [class.chip-active]="user.isActive"
+                  [disabled]="isSelf(user)"
+                  [title]="isSelf(user) ? 'You cannot deactivate yourself' : 'Toggle active status'"
+                  (click)="toggleActive(user)"
+                >
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </button>
+              </td>
+              <td>
+                @if (user.isLocked) {
+                  <span class="chip chip-locked">Locked</span>
+                  <button
+                    type="button"
+                    class="link-btn"
+                    [disabled]="unlocking() === user.id"
+                    (click)="unlock(user)"
+                  >
+                    {{ unlocking() === user.id ? 'Unlocking…' : 'Unlock' }}
+                  </button>
+                } @else {
+                  <span class="chip">Unlocked</span>
+                }
+              </td>
+              <td class="row-end">
+                @if (isSelf(user)) {
+                  <span class="you-tag">You</span>
+                }
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr>
+              <td colspan="6" class="empty-row">No users yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

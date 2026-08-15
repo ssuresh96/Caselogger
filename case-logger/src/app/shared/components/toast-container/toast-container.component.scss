@@ -1,0 +1,159 @@
+.app-toast-stack {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 380px;
+}
+
+// Prefixed app-toast-* throughout (not just .toast) — Bootstrap ships its
+// own `.toast { display: none; }` component (shown only via its own JS
+// adding `.show`), and since bootstrap.css loads globally for ng-bootstrap,
+// a bare `.toast` class here collided with it and silently kept every
+// toast invisible regardless of this component's own styles.
+.app-toast {
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  box-shadow: var(--shadow-card);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.app-toast-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 13px 14px;
+}
+
+.app-toast-icon-badge {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.app-toast-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-toast-title {
+  font-weight: 600;
+}
+
+.app-toast-message {
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.app-toast-close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+
+  &:hover {
+    background: var(--page-bg);
+    color: var(--text-primary);
+  }
+}
+
+.app-toast-progress-track {
+  height: 3px;
+  background: var(--page-bg);
+}
+
+.app-toast-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  animation-name: toast-progress-shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes toast-progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.app-toast-success {
+  border-left-color: var(--status-good);
+
+  .app-toast-icon-badge {
+    background: var(--status-good-tint);
+    color: var(--status-good-text);
+  }
+
+  .app-toast-progress-fill {
+    background: var(--status-good);
+  }
+}
+
+.app-toast-error {
+  border-left-color: var(--status-critical);
+
+  .app-toast-icon-badge {
+    background: var(--status-critical-tint);
+    color: var(--status-critical-text);
+  }
+
+  .app-toast-progress-fill {
+    background: var(--status-critical);
+  }
+}
+
+.app-toast-info {
+  border-left-color: var(--status-info);
+
+  .app-toast-icon-badge {
+    background: var(--status-info-tint);
+    color: var(--status-info-text);
+  }
+
+  .app-toast-progress-fill {
+    background: var(--status-info);
+  }
+}
+
+.app-toast-warning {
+  border-left-color: var(--status-warning);
+
+  .app-toast-icon-badge {
+    background: var(--status-warning-tint);
+    color: var(--status-warning-text);
+  }
+
+  .app-toast-progress-fill {
+    background: var(--status-warning);
+  }
+}

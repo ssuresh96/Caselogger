@@ -1,0 +1,121 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div>
+      <h2>{{ meta().title }}</h2>
+      <p>{{ visibleItems().length }} item{{ visibleItems().length === 1 ? '' : 's' }}</p>
+    </div>
+    <button type="button" class="primary-btn" (click)="toggleAddForm()">
+      <app-icon [name]="showAddForm() ? 'close' : 'add'" />
+      {{ showAddForm() ? 'Cancel' : 'Add ' + meta().singular }}
+    </button>
+  </div>
+
+  @if (showAddForm()) {
+    <div class="card">
+      <form [formGroup]="form" class="add-form" (ngSubmit)="submitAdd()">
+        <label class="field">
+          <span>Name *</span>
+          <input type="text" formControlName="name" placeholder="e.g. {{ meta().singular }} name" />
+        </label>
+
+        @if (meta().hasToneAndClose) {
+          <label class="field">
+            <span>Badge Color</span>
+            <select formControlName="tone">
+              @for (tone of tones; track tone) {
+                <option [value]="tone">{{ tone }}</option>
+              }
+            </select>
+          </label>
+        }
+
+        @if (kind() === 'status') {
+          <label class="field field-checkbox">
+            <input type="checkbox" formControlName="closesCase" />
+            <span>Counts as "case closed" (sets Date of Closure automatically)</span>
+          </label>
+        }
+
+        @if (kind() === 'category') {
+          <fieldset class="field field-checkbox-group">
+            <legend>Allowed reference types (Bug / Task / Workorder)</legend>
+            <label class="field-checkbox">
+              <input type="checkbox" formControlName="bugAllowed" />
+              <span>Bug</span>
+            </label>
+            <label class="field-checkbox">
+              <input type="checkbox" formControlName="taskAllowed" />
+              <span>Task</span>
+            </label>
+            <label class="field-checkbox">
+              <input type="checkbox" formControlName="woAllowed" />
+              <span>Workorder</span>
+            </label>
+          </fieldset>
+        }
+
+        <button type="submit" class="primary-btn" [disabled]="form.invalid || submitting()">
+          @if (submitting()) {
+            <app-spinner />
+          }
+          {{ submitting() ? 'Adding…' : 'Add ' + meta().singular }}
+        </button>
+      </form>
+    </div>
+  }
+
+  <div class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value</th>
+            @if (meta().hasToneAndClose) {
+              <th>Badge</th>
+            }
+            @if (kind() === 'status') {
+              <th>Closes Case</th>
+            }
+            @if (kind() === 'category') {
+              <th>Allowed Reference Types</th>
+            }
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of visibleItems(); track item.id) {
+            <tr>
+              <td class="row-label">{{ item.name }}</td>
+              <td class="muted">{{ item.value }}</td>
+              @if (meta().hasToneAndClose) {
+                <td><span class="tone-dot" [class]="'tone-' + item.tone"></span>{{ item.tone }}</td>
+              }
+              @if (kind() === 'status') {
+                <td>{{ item.closesCase ? 'Yes' : 'No' }}</td>
+              }
+              @if (kind() === 'category') {
+                <td class="muted">{{ item.allowedReferenceTypes ? item.allowedReferenceTypes.join(', ') : 'All (Bug, Task, Workorder)' }}</td>
+              }
+              <td>
+                <button
+                  type="button"
+                  class="chip"
+                  [class.chip-active]="item.active"
+                  (click)="toggleActive(item)"
+                >
+                  {{ item.active ? 'Active' : 'Inactive' }}
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr>
+              <td colspan="5" class="empty-row">No {{ meta().title.toLowerCase() }} yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

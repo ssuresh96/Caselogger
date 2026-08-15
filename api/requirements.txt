@@ -1,0 +1,10 @@
+fastapi[standard]>=0.115
+uvicorn[standard]>=0.32
+motor>=3.6
+fastapi-users[beanie]>=15.0
+pydantic-settings>=2.6
+python-dotenv>=1.0
+openpyxl>=3.1  # scripts/migrate_excel.py (Phase 5) and app/import_data (Phase 13)
+limits>=5.0  # login rate limiting (T7.1) — see app/core/rate_limit.py for why not slowapi
+pytest>=8.0  # tests/ (Phase 8) only — not needed at runtime
+pytest-asyncio>=1.0  # tests/ (Phase 8) only — not needed at runtime

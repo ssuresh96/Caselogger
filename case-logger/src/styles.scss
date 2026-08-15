@@ -1,0 +1,139 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+
+:root {
+  // Layout chrome — light sidebar (design refresh)
+  --sidebar-bg: #ffffff;
+  --sidebar-bg-hover: #f6f7f8;
+  --sidebar-bg-active: #f0edfe;
+  --sidebar-text: #4b5563;
+  --sidebar-text-active: #3f2fb0;
+  --sidebar-border: rgba(0, 0, 0, 0.07);
+
+  --page-bg: #f6f7f8;
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.14);
+
+  --text-primary: #14161a;
+  --text-secondary: #4b5563;
+  --text-muted: #9aa2ae;
+
+  // Brand accent — indigo
+  --accent: #5b45d6;
+  --accent-strong: #3f2fb0;
+  --accent-tint: #f0edfe;
+  --brand-gradient: linear-gradient(140deg, #7c5cf5, #3ec8b6);
+  --avatar-bg: #ded6fb;
+  --avatar-text: #3f2fb0;
+
+  // Status / priority
+  --status-good: #3ec8b6;
+  --status-good-tint: #e6f6f3;
+  --status-good-text: #0e7d70;
+
+  --status-warning: #e8a33d;
+  --status-warning-tint: #fdf3e4;
+  --status-warning-text: #a06a12;
+
+  --status-serious: #e8a33d;
+  --status-serious-tint: #fdf3e4;
+  --status-serious-text: #b5650e;
+
+  --status-critical: #e0575c;
+  --status-critical-tint: #fdecec;
+  --status-critical-text: #c0353a;
+
+  --status-progress: #5b45d6;
+  --status-progress-tint: #f0edfe;
+  --status-progress-text: #3f2fb0;
+
+  --status-info: #4f9bf5;
+  --status-info-tint: #eef0fb;
+  --status-info-text: #2b5ea8;
+
+  // Categorical chart slots
+  --series-blue: #4f9bf5;
+  --series-orange: #e8a33d;
+  --series-aqua: #3ec8b6;
+  --series-yellow: #eda100;
+  --series-magenta: #e87ba4;
+  --series-green: #0e7d70;
+  --series-violet: #5b45d6;
+  --series-red: #e0575c;
+
+  --chart-gridline: rgba(0, 0, 0, 0.06);
+  --chart-axis: #aab1bb;
+
+  --radius-sm: 8px;
+  --radius-md: 9px;
+  --radius-lg: 13px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 12px 32px -18px rgba(0, 0, 0, 0.25);
+
+  --transition-fast: 0.15s ease;
+}
+
+// Smooth-by-default baseline for interactive elements — buttons/links/badges
+// change background/border/color/shadow on hover, focus, and state toggles
+// throughout the app; this covers every component without needing a
+// `transition` rule hand-added to each one individually. Layout-affecting
+// properties (width/height/grid-template-rows for expand/collapse) are
+// still declared per-component since a blanket `transition: all` would
+// fight component-specific timing/easing for those.
+button,
+a,
+input,
+select,
+textarea,
+.badge {
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+// ng-bootstrap modals (Create Case, delete confirmation) — rounder corners
+// and a deeper shadow to match the design mockup's modal treatment, plus
+// spacing/typography for the shared dropdown menus (topbar user menu, case
+// row actions, case detail's "more actions") so a bare .dropdown-item with
+// an <app-icon> lines up instead of relying on Bootstrap's plain-text default.
+.modal-content {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-menu {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 6px;
+  min-width: 180px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+
+  app-icon {
+    font-size: 17px;
+    width: 17px;
+    color: var(--text-muted);
+  }
+
+  &:hover,
+  &:focus {
+    background: var(--page-bg);
+    color: var(--text-primary);
+  }
+}

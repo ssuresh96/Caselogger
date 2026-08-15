@@ -1,0 +1,152 @@
+<div class="case-list-page">
+  <div class="page-header">
+    <div>
+      <h2>{{ scope === 'mine' ? 'My Cases' : 'All Cases' }}</h2>
+      <p>{{ loading() && !pageCases().length ? 'Loading…' : total() + ' case' + (total() === 1 ? '' : 's') + ' found' }}</p>
+    </div>
+    <button type="button" class="new-case-btn" (click)="openCreateCase()">
+      <app-icon name="add" />
+      New Case
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div class="search-shell">
+        <app-icon name="search" />
+        <input
+          type="text"
+          placeholder="Search by Case ID, Description, or Customer..."
+          [value]="search()"
+          (input)="updateSearch($any($event.target).value)"
+        />
+      </div>
+
+      <select class="filter-select" [value]="statusFilter()" (change)="updateStatus($any($event.target).value)">
+        <option value="all">All status</option>
+        @for (status of statusOptions; track status) {
+          <option [value]="status">{{ referenceData.statusLabel(status) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Case ID</th>
+            <th>Description</th>
+            <th>Customer</th>
+            <th>Category</th>
+            <th>WO Number</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Updated On</th>
+            <th class="actions-col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading() && !pageCases().length) {
+            @for (w of skeletonRows; track $index) {
+              <tr class="skeleton-row">
+                <td><span class="skeleton-bar" style="width: 100px"></span></td>
+                <td><span class="skeleton-bar" [style.width.px]="w"></span></td>
+                <td><span class="skeleton-bar" style="width: 72px"></span></td>
+                <td><span class="skeleton-bar" style="width: 96px"></span></td>
+                <td><span class="skeleton-bar" style="width: 84px"></span></td>
+                <td><span class="skeleton-bar" style="width: 92px"></span></td>
+                <td><span class="skeleton-badge"></span></td>
+                <td><span class="skeleton-bar" style="width: 104px"></span></td>
+                <td></td>
+              </tr>
+            }
+            <tr class="fetching-row">
+              <td colspan="9">
+                <app-spinner />
+                Fetching cases…
+              </td>
+            </tr>
+          }
+          @for (item of pageCases(); track item.id) {
+            <tr>
+              <td class="case-id">{{ item.caseId }}</td>
+              <td class="truncate-cell">{{ item.description }}</td>
+              <td>{{ item.customer }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.workOrderNumbers.length ? item.workOrderNumbers.join(', ') : '—' }}</td>
+              <td>{{ item.assignedTo.name }}</td>
+              <td><app-badge [tone]="referenceData.statusTone(item.status)" [label]="referenceData.statusLabel(item.status)" /></td>
+              <td>{{ item.updatedAt | date: 'd MMM y, h:mm a' }}</td>
+              <td class="actions-col">
+                <div ngbDropdown container="body">
+                  <button
+                    type="button"
+                    class="row-menu-btn"
+                    id="rowMenu-{{ item.id }}"
+                    ngbDropdownToggle
+                    aria-label="Case actions"
+                  >
+                    <app-icon name="more_vert" />
+                  </button>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'rowMenu-' + item.id">
+                    <button ngbDropdownItem type="button" (click)="editCase(item.id)">
+                      <app-icon name="edit" />
+                      Edit
+                    </button>
+                    <button ngbDropdownItem type="button" class="menu-item-danger" (click)="deleteCase(item.id, item.caseId)">
+                      <app-icon name="delete" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+          @empty {
+            @if (!loading()) {
+              <tr>
+                <td colspan="9" class="empty-cell">
+                  <div class="empty-state">
+                    <span class="empty-icon"><app-icon name="search" /></span>
+                    <p class="empty-title">No cases match your filters</p>
+                    @if (hasActiveFilters()) {
+                      <p class="empty-body">Try a different status filter, or clear the search to see all cases.</p>
+                      <button type="button" class="empty-clear-link" (click)="clearFilters()">Clear filters</button>
+                    } @else {
+                      <p class="empty-body">There are no cases here yet.</p>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="pagination-info">
+        Showing {{ rangeStart() }} to {{ rangeEnd() }} of {{ total() }} entries
+      </span>
+      <div class="pagination-controls">
+        <button type="button" class="page-btn" (click)="prevPage()" [disabled]="page() === 1" aria-label="Previous page">
+          <app-icon name="chevron_left" />
+        </button>
+        @for (p of pageNumbers(); track p) {
+          <button type="button" class="page-btn" [class.page-btn-active]="p === page()" (click)="goToPage(p)">
+            {{ p }}
+          </button>
+        }
+        <button
+          type="button"
+          class="page-btn"
+          (click)="nextPage()"
+          [disabled]="page() === totalPages()"
+          aria-label="Next page"
+        >
+          <app-icon name="chevron_right" />
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

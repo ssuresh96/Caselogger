@@ -1,0 +1,102 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div>
+      <h2>Import Cases</h2>
+      <p>Bulk-load historical case data from a filled-in Excel template.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>1. Download the template</h3>
+    <p class="hint">
+      Get a blank <code>.xlsx</code> with the correct columns and dropdowns for Reporter Type,
+      Status, Type, Product, and Category — fill it in with your historical data.
+    </p>
+    <button type="button" class="primary-btn" [disabled]="downloadingTemplate()" (click)="downloadTemplate()">
+      @if (downloadingTemplate()) {
+        <app-spinner />
+      } @else {
+        <app-icon name="download" />
+      }
+      {{ downloadingTemplate() ? 'Preparing…' : 'Download Template' }}
+    </button>
+    @if (downloadErrorMessage()) {
+      <p class="error-text">{{ downloadErrorMessage() }}</p>
+    }
+  </div>
+
+  <div class="card">
+    <h3>2. Upload the filled-in file</h3>
+    <p class="hint">
+      Each row becomes a new case. Rows with a missing field, an invalid Status/Type, or an
+      "Assigned To" name that doesn't match an existing user are rejected with a reason — nothing
+      is silently skipped.
+    </p>
+    <div class="upload-row">
+      <label class="file-picker">
+        <input type="file" accept=".xlsx" (change)="onFileSelected($event)" />
+        <app-icon name="upload_file" />
+        {{ selectedFile()?.name ?? 'Choose file…' }}
+      </label>
+      <button
+        type="button"
+        class="primary-btn"
+        [disabled]="!selectedFile() || importing()"
+        (click)="submitImport()"
+      >
+        @if (importing()) {
+          <app-spinner />
+        }
+        {{ importing() ? 'Importing…' : 'Import Cases' }}
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="error-text">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <p class="info-banner">
+    Imports are logged against your user and appear in each case's Activity Timeline as
+    "Imported from Excel".
+  </p>
+
+  @if (result(); as r) {
+    <div class="card result-card">
+      <h3>Import Result</h3>
+      <div class="result-stats">
+        <div class="stat">
+          <span class="stat-value">{{ r.totalRows }}</span>
+          <span class="stat-label">Rows Read</span>
+        </div>
+        <div class="stat stat-good">
+          <span class="stat-value">{{ r.imported }}</span>
+          <span class="stat-label">Imported</span>
+        </div>
+        <div class="stat stat-bad">
+          <span class="stat-value">{{ r.rejected.length }}</span>
+          <span class="stat-label">Rejected</span>
+        </div>
+      </div>
+
+      @if (r.rejected.length) {
+        <table class="rejected-table">
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of r.rejected; track row.row) {
+              <tr>
+                <td>{{ row.row }}</td>
+                <td>{{ row.reason }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+</div>

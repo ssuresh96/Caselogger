@@ -1,0 +1,312 @@
+.reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+
+.row-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.btn-primary {
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--accent-strong);
+  }
+}
+
+.card {
+  // Bootstrap's own `.card` component sets display:flex globally; without
+  // an explicit override here it wins and stretches non-block children.
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 18px 20px;
+}
+
+.card-header {
+  // Bootstrap's own `.card-header` sets padding/background/border-bottom —
+  // same collision as .card above, neutralized explicitly.
+  padding: 0;
+  background: transparent;
+  border-bottom: none;
+  margin-bottom: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-value-accent {
+  color: var(--accent-strong);
+}
+
+.stat-delta {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.delta-down {
+  color: var(--status-critical-text);
+}
+
+.story-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--accent-tint);
+
+  h4 {
+    margin: 0 0 4px;
+    font-size: 0.9rem;
+    color: var(--accent-strong);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+}
+
+.story-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--accent);
+  flex-shrink: 0;
+
+  app-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.donut-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.table-card {
+  padding: 18px 20px;
+  overflow: hidden;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.row-label {
+  font-weight: 600;
+}
+
+.row-current {
+  background: var(--accent-tint);
+}
+
+.row-total {
+  font-weight: 700;
+}
+
+.row-total-row td {
+  background: var(--page-bg);
+  font-weight: 700;
+  border-top: 2px solid var(--border-strong);
+}
+
+.rate-bar {
+  display: inline-block;
+  width: 60px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.rate-fill {
+  height: 100%;
+  background: var(--status-good);
+  border-radius: 999px;
+}
+
+.rate-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.mix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  // Grid items default to min-width:auto, which lets a nowrap table cell
+  // (e.g. a long category name) overflow into the neighboring column
+  // instead of scrolling within its own cell.
+  > div {
+    min-width: 0;
+    overflow-x: auto;
+  }
+}
+
+.mix-title {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.mix-table {
+  font-size: 0.78rem;
+
+  th,
+  td {
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+
+  .two-col,
+  .mix-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

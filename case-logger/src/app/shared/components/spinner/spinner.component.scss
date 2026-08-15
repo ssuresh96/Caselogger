@@ -1,0 +1,22 @@
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: app-spinner-rotate 0.65s linear infinite;
+}
+
+.spinner-lg {
+  width: 22px;
+  height: 22px;
+  border-width: 2.5px;
+}
+
+@keyframes app-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

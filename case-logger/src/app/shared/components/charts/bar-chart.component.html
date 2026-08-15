@@ -1,0 +1,31 @@
+<svg [attr.viewBox]="viewBox" preserveAspectRatio="none" class="bar-svg">
+  @for (line of gridLines(); track line.y) {
+    <line [attr.x1]="padLeft" [attr.x2]="560 - 12" [attr.y1]="line.y" [attr.y2]="line.y" class="gridline" />
+    <text [attr.x]="padLeft - 8" [attr.y]="line.y + 3" class="axis-label" text-anchor="end">{{ line.value }}</text>
+  }
+
+  @for (bar of bars(); track bar.label) {
+    <rect
+      [attr.x]="bar.x"
+      [attr.y]="bar.y"
+      [attr.width]="bar.width"
+      [attr.height]="bar.height"
+      [attr.fill]="color()"
+      rx="4"
+      ry="4"
+    >
+      <title>{{ bar.label }}: {{ bar.value }}</title>
+    </rect>
+  }
+
+  @for (label of labels(); track $index) {
+    <text
+      [attr.x]="xLabelPositions()[$index]"
+      [attr.y]="bottomY + 18"
+      class="axis-label"
+      [attr.text-anchor]="$index === 0 ? 'start' : $index === labels().length - 1 ? 'end' : 'middle'"
+    >
+      {{ label }}
+    </text>
+  }
+</svg>

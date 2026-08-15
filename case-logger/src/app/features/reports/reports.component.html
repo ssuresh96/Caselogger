@@ -1,0 +1,247 @@
+<div class="reports-page">
+  <div class="page-header">
+    <div>
+      <h2>{{ pageTitle() }}</h2>
+      <p>Live from {{ historyStartLabel }} onward · recalculates automatically as new cases come in.</p>
+    </div>
+    <div class="header-actions">
+      <app-month-picker [(value)]="selectedMonth" [minValue]="historyStart" />
+      <button type="button" class="btn-primary">Export</button>
+    </div>
+  </div>
+
+  @if (view() === 'monthly') {
+    <div class="stat-grid">
+      <div class="stat-card">
+        <span class="stat-label">Selected Month</span>
+        <span class="stat-value stat-value-accent">{{ selectedMonthLabel() }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total Cases</span>
+        <span class="stat-value">{{ liveReport().totalCases }}</span>
+        <span class="stat-delta" [class.delta-down]="totalCasesDelta().startsWith('-')">vs prev: {{ totalCasesDelta() }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">AOS Share</span>
+        <span class="stat-value">{{ liveReport().aosShare | number: '1.1-1' }}%</span>
+        <span class="stat-delta" [class.delta-down]="aosShareDelta().startsWith('-')">vs prev: {{ aosShareDelta() }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Close Rate</span>
+        <span class="stat-value">{{ liveReport().closeRate | number: '1.1-1' }}%</span>
+        <span class="stat-delta" [class.delta-down]="closeRateDelta().startsWith('-')">vs prev: {{ closeRateDelta() }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Pending</span>
+        <span class="stat-value">{{ liveReport().pending }}</span>
+        <span class="stat-delta" [class.delta-down]="pendingDelta().startsWith('-')">vs prev: {{ pendingDelta() }}</span>
+      </div>
+    </div>
+
+    <div class="card story-card">
+      <span class="story-icon"><app-icon name="lightbulb" /></span>
+      <div>
+        <h4>Story in Brief</h4>
+        <p>
+          {{ selectedMonthLabel() }} has {{ liveReport().totalCases }} cases so far. AOS represents
+          {{ liveReport().aosShare | number: '1.1-1' }}% of volume, while {{ liveReport().closeRate | number: '1.1-1' }}%
+          of cases are closed and {{ liveReport().pending }} remain pending. This section reflects the live system —
+          pick a different month above to recalculate.
+        </p>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card chart-card">
+        <div class="card-header"><h3>Total Cases by Month</h3></div>
+        <app-bar-chart [labels]="monthLabels()" [values]="totalCasesTrend()" color="var(--series-blue)" />
+      </div>
+      <div class="card chart-card">
+        <div class="card-header"><h3>Close Rate Trend</h3></div>
+        <app-line-chart [labels]="monthLabels()" [series]="closeRateTrend()" />
+      </div>
+      <div class="card chart-card donut-card">
+        <div class="card-header"><h3>Cases by Status ({{ selectedMonthLabel() }})</h3></div>
+        <app-donut-chart [segments]="statusDonut()" [centerLabel]="selectedMonthLabel()" />
+      </div>
+    </div>
+  }
+
+  @if (view() === 'monthly' || view() === 'case-volume') {
+    <div class="card table-card">
+      <div class="card-header"><h3>Monthly Volume &amp; Resolution</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Total Cases</th>
+              <th>AOS Cases</th>
+              <th>AOS %</th>
+              <th>Pending</th>
+              <th>Close Rate</th>
+              <th>Impl. Closed</th>
+              <th>Deactivations</th>
+              <th>MoM Change</th>
+              <th>Pending %</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of months(); track row.month) {
+              <tr [class.row-current]="row.month === selectedMonth()">
+                <td class="row-label">{{ row.label }}</td>
+                <td>{{ row.totalCases }}</td>
+                <td>{{ row.aosCases }}</td>
+                <td>{{ (row.aosCases / row.totalCases) * 100 | number: '1.1-1' }}%</td>
+                <td>{{ row.pending }}</td>
+                <td>{{ row.closeRate }}%</td>
+                <td>{{ row.implClosed }}</td>
+                <td>{{ row.deactivations }}</td>
+                <td>{{ row.momChange }}</td>
+                <td>{{ row.pendingPct }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (view() === 'monthly' || view() === 'workload' || view() === 'category-product') {
+    <div class="two-col">
+      @if (view() === 'monthly' || view() === 'workload') {
+        <div class="card table-card">
+          <div class="card-header"><h3>Current-Month Workload ({{ selectedMonthLabel() }})</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Team Member</th>
+                  <th>Assigned</th>
+                  <th>Closed</th>
+                  <th>Pending</th>
+                  <th>Close Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of liveWorkload(); track row.member) {
+                  <tr>
+                    <td class="row-label">{{ row.member }}</td>
+                    <td>{{ row.assigned }}</td>
+                    <td>{{ row.closed }}</td>
+                    <td>{{ row.pending }}</td>
+                    <td>
+                      <div class="rate-bar">
+                        <div class="rate-fill" [style.width.%]="row.closeRate"></div>
+                      </div>
+                      <span class="rate-text">{{ row.closeRate }}%</span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="row-empty">No cases assigned yet for {{ selectedMonthLabel() }}.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      @if (view() === 'monthly' || view() === 'category-product') {
+        <div class="card table-card">
+          <div class="card-header"><h3>Current-Month Category &amp; Product Mix ({{ selectedMonthLabel() }})</h3></div>
+          <div class="mix-grid">
+            <div>
+              <span class="mix-title">Top Category</span>
+              <table class="mix-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Cases</th>
+                    <th>Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of liveReport().categoryMix; track row.label) {
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ row.cases }}</td>
+                      <td>{{ row.share }}%</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="3" class="row-empty">No cases yet.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <span class="mix-title">Top Product</span>
+              <table class="mix-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Cases</th>
+                    <th>Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of liveReport().productMix; track row.label) {
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ row.cases }}</td>
+                      <td>{{ row.share }}%</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="3" class="row-empty">No cases yet.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (view() === 'monthly' || view() === 'team-workload') {
+    <div class="card table-card">
+      <div class="card-header"><h3>Monthly Team Workload — Assigned Cases</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Team Member</th>
+              @for (m of teamMonths(); track $index) {
+                <th>{{ m }}</th>
+              }
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of teamWorkload(); track row.member) {
+              <tr>
+                <td class="row-label">{{ row.member }}</td>
+                @for (value of row.months; track $index) {
+                  <td>{{ value }}</td>
+                }
+                <td class="row-total">{{ row.total }}</td>
+              </tr>
+            }
+            <tr class="row-total-row">
+              <td class="row-label">Total</td>
+              @for (value of teamMonthTotals(); track $index) {
+                <td>{{ value }}</td>
+              }
+              <td class="row-total">{{ teamGrandTotal() }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

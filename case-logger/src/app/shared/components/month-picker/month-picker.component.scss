@@ -1,0 +1,150 @@
+:host {
+  display: inline-block;
+}
+
+.mp-shell {
+  position: relative;
+}
+
+.mp-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 9px 13px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+
+  app-icon {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+}
+
+.mp-open .mp-trigger {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+
+  app-icon {
+    color: var(--accent);
+  }
+}
+
+.mp-panel {
+  position: fixed;
+  z-index: 1200;
+  width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 14px 16px 12px;
+}
+
+.mp-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mp-nav-btn {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--page-bg);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  app-icon {
+    font-size: 13px;
+  }
+}
+
+.mp-year-label {
+  flex: 1;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.mp-cell {
+  height: 40px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12.5px;
+  color: var(--text-primary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--page-bg);
+  }
+
+  &:disabled {
+    color: var(--text-muted);
+    border-color: transparent;
+    cursor: not-allowed;
+  }
+}
+
+.mp-cell-selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.mp-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  gap: 12px;
+}
+
+.mp-footer span {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.mp-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

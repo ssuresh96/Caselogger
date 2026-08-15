@@ -1,0 +1,116 @@
+<div class="shell" [class.collapsed]="sidebarCollapsed()" [class.mobile-nav-open]="mobileNavOpen()">
+  @if (mobileNavOpen()) {
+    <div class="mobile-backdrop" (click)="closeMobileNav()"></div>
+  }
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-logo"></span>
+      <span class="brand-name">CaseLog</span>
+    </div>
+
+    <nav class="nav">
+      @for (item of navItems; track item.label) {
+        @if (!item.adminOnly || currentRole() === 'admin') {
+        @if (item.action === 'create-case') {
+          <button type="button" class="nav-link" (click)="openCreateCase()">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="navIconPath(item.label)" />
+            </svg>
+            <span class="nav-label">{{ item.label }}</span>
+          </button>
+        } @else if (!item.children) {
+          <a
+            class="nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="nav-link-active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileNav()"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="navIconPath(item.label)" />
+            </svg>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        } @else {
+          <a class="nav-link nav-parent" [routerLink]="item.path" [class.nav-link-active]="isParentActive(item)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="navIconPath(item.label)" />
+            </svg>
+            <span class="nav-label">{{ item.label }}</span>
+            <app-icon name="expand_more" class="chevron" [class.chevron-open]="isParentActive(item)" />
+          </a>
+          <div class="nav-children" [class.nav-children-open]="isParentActive(item)">
+            <div class="nav-children-inner">
+              @for (child of item.children; track child.path) {
+                <a
+                  class="nav-child-link"
+                  [routerLink]="child.path"
+                  routerLinkActive="nav-child-link-active"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  (click)="closeMobileNav()"
+                >
+                  <svg class="nav-child-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path [attr.d]="subIconPath(child.label)" />
+                  </svg>
+                  {{ child.label }}
+                </a>
+              }
+            </div>
+          </div>
+        }
+        }
+      }
+    </nav>
+
+    @if (currentUser$ | async; as currentUser) {
+      <div class="sidebar-footer">
+        <span class="avatar">{{ initials(currentUser.displayName) }}</span>
+        <div class="footer-text">
+          <span class="footer-name">{{ currentUser.displayName }}</span>
+          <span class="footer-role">Product Specialist</span>
+        </div>
+        <button class="footer-logout" type="button" (click)="logout()" aria-label="Log out">
+          <app-icon name="logout" />
+        </button>
+      </div>
+    }
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" type="button" (click)="toggleNav()" aria-label="Toggle sidebar">
+        <app-icon name="menu" />
+      </button>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
+
+      <div class="search-shell">
+        <app-icon name="search" />
+        <input type="text" placeholder="Search cases, users, etc..." />
+      </div>
+
+      <button class="icon-btn bell-btn" type="button" aria-label="Notifications">
+        <app-icon name="notifications" />
+        <span class="bell-dot"></span>
+      </button>
+
+      @if (currentUser$ | async; as currentUser) {
+        <div ngbDropdown class="topbar-avatar-dropdown" container="body">
+          <button class="topbar-avatar" type="button" id="userMenuToggle" ngbDropdownToggle>
+            {{ initials(currentUser.displayName) }}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="userMenuToggle">
+            <button ngbDropdownItem type="button" (click)="logout()">
+              <app-icon name="logout" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      }
+    </header>
+
+    <main class="content" [@routeFade]="currentUrl()">
+      <router-outlet />
+    </main>
+  </div>
+</div>

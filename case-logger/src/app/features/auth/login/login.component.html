@@ -1,0 +1,119 @@
+<div class="login-page">
+  <section class="form-panel">
+    <div class="form-wrap">
+      <div class="form-brand">
+        <span class="form-logo"></span>
+        <span class="form-brand-name">CaseLog</span>
+      </div>
+
+      <h2 class="form-title">Sign in</h2>
+      <p class="form-subtitle">Use your work account to reach the case queue, reports and admin.</p>
+
+      @if (isPrototypeMode) {
+        <div class="prototype-banner">
+          <app-icon name="science" />
+          <span>Prototype mode — any email &amp; password works, or skip straight in below.</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label class="field-label" for="email">Email</label>
+        <div class="input-shell" [class.input-error]="form.controls.email.invalid && form.controls.email.touched">
+          <app-icon name="mail" class="input-icon" />
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            placeholder="you&#64;company.com"
+          />
+        </div>
+
+        <div class="password-label-row">
+          <label class="field-label" for="password">Password</label>
+          <button type="button" class="link-btn" (click)="forgotPassword()">Forgot?</button>
+        </div>
+        <div class="input-shell" [class.input-error]="form.controls.password.invalid && form.controls.password.touched">
+          <app-icon name="lock" class="input-icon" />
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="••••••••••••"
+          />
+          <button
+            type="button"
+            class="icon-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            <app-icon [name]="showPassword() ? 'visibility_off' : 'visibility'" />
+          </button>
+        </div>
+
+        <label class="remember-row">
+          <input
+            type="checkbox"
+            [checked]="rememberMe()"
+            (change)="rememberMe.set($any($event.target).checked)"
+          />
+          <span>Keep me signed in on this device</span>
+        </label>
+
+        @if (errorMessage()) {
+          <p class="message message-error">{{ errorMessage() }}</p>
+        }
+        @if (infoMessage()) {
+          <p class="message message-info">{{ infoMessage() }}</p>
+        }
+
+        <button type="submit" class="submit-btn" [disabled]="form.invalid || submitting()">
+          @if (submitting()) {
+            <app-spinner />
+          }
+          {{ submitting() ? 'Signing in…' : 'Sign in' }}
+        </button>
+
+        <div class="divider-row">
+          <span class="divider-line"></span>
+          <span class="divider-label">OR</span>
+          <span class="divider-line"></span>
+        </div>
+
+        <button type="button" class="sso-btn" (click)="continueWithSso()">
+          Continue with company SSO
+        </button>
+
+        <div class="form-links">
+          <span class="muted-text">Need an account? Contact your admin</span>
+        </div>
+      </form>
+
+      @if (isPrototypeMode) {
+        <button type="button" class="demo-btn" (click)="continueAsDemo()" [disabled]="submitting()">
+          @if (submitting()) {
+            <app-spinner />
+          } @else {
+            <app-icon name="bolt" />
+          }
+          Continue as Demo User
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="hero-panel">
+    <div class="hero-eyebrow">Case Logging System</div>
+    <h1 class="hero-headline">Every case, every action, logged once — and reportable the same day.</h1>
+
+    <div class="hero-points">
+      @for (p of heroPoints; track p) {
+        <div class="hero-point">
+          <span class="hero-point-dot"></span>
+          {{ p }}
+        </div>
+      }
+    </div>
+  </section>
+</div>

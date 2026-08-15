@@ -1,0 +1,51 @@
+<div class="line-chart">
+  <svg [attr.viewBox]="viewBox" preserveAspectRatio="none" class="line-svg">
+    @for (line of gridLines(); track line.y) {
+      <line
+        [attr.x1]="padLeft"
+        [attr.x2]="560 - 12"
+        [attr.y1]="line.y"
+        [attr.y2]="line.y"
+        class="gridline"
+      />
+      <text [attr.x]="padLeft - 8" [attr.y]="line.y + 3" class="axis-label" text-anchor="end">
+        {{ line.value }}
+      </text>
+    }
+
+    @for (line of plotted(); track line.name) {
+      <path [attr.d]="line.path" fill="none" [attr.stroke]="line.color" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      @for (point of line.points; track point.x) {
+        <circle
+          [attr.cx]="point.x"
+          [attr.cy]="point.y"
+          r="4"
+          [attr.fill]="line.color"
+          stroke="var(--surface)"
+          stroke-width="2"
+        >
+          <title>{{ line.name }}: {{ point.value }}</title>
+        </circle>
+      }
+    }
+
+    @for (label of labels(); track $index) {
+      <text
+        [attr.x]="xPositions()[$index]"
+        [attr.y]="bottomY + 18"
+        class="axis-label"
+        [attr.text-anchor]="$index === 0 ? 'start' : $index === labels().length - 1 ? 'end' : 'middle'"
+      >
+        {{ label }}
+      </text>
+    }
+  </svg>
+
+  @if (series().length > 1) {
+    <ul class="legend">
+      @for (s of series(); track s.name) {
+        <li><span class="dot" [style.background]="s.color"></span>{{ s.name }}</li>
+      }
+    </ul>
+  }
+</div>
