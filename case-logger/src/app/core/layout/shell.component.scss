@@ -31,6 +31,15 @@
   display: none;
 }
 
+// A submenu left expanded (e.g. Admin, from the active-route auto-expand)
+// before the sidebar itself collapses to its 76px icon rail was still
+// rendering full-width child rows with no room for them — icons and text
+// crushed together at the rail's edge. A collapsed rail has no space for
+// a submenu at all, so hide it outright, same as the parent's own label.
+.collapsed .nav-children {
+  display: none;
+}
+
 .collapsed .footer-logout {
   display: none;
 }

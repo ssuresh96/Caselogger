@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -50,6 +50,7 @@ const SUB_ICON_PATHS: Record<string, string> = {
   Statuses: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8.5 12.5l2.5 2.5 4.5-5',
   Types: 'M4 6h11l5 6-5 6H4z',
   'Import Cases': 'M12 4v10m0 0l-4-4m4 4l4-4M4 18h16',
+  'Email Agent': 'M4 6h16v12H4zM4 6l8 7 8-7',
 };
 
 @Component({
@@ -57,6 +58,7 @@ const SUB_ICON_PATHS: Record<string, string> = {
   imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent, NgbDropdownModule, AsyncPipe],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     // Re-fires on every navigation since the bound expression (the url)
     // changes even though <main> itself never leaves the DOM — the
