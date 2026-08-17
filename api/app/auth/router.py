@@ -40,21 +40,28 @@ class UserSummaryOut(CamelModel):
 @router.get("", response_model=list[UserSummaryOut])
 async def list_users(
     active_only: bool = Query(default=False, alias="activeOnly"),
-    _user: User = Depends(current_active_user),
+    user: User = Depends(current_active_user),
 ) -> list[UserSummaryOut]:
     """Not provided by fastapi-users out of the box (it only ships /me and
     /{id}) — needed for the Assigned To dropdown on the Create Case modal,
-    and the Admin Panel's Users tab."""
+    and the Admin Panel's Users tab.
+
+    Security audit M-1: a non-admin caller only needs id/name/isActive to
+    populate an assignee picker (confirmed against every frontend call
+    site — none of them read email/isSuperuser/isLocked outside the
+    admin-only Users page), so email/role/lock-status are redacted for
+    them rather than handed to every logged-in agent. Admins still get the
+    full picture, same as before."""
     query = User.find(User.is_active == True) if active_only else User.find_all()  # noqa: E712
     users = await query.sort("+name").to_list()
     return [
         UserSummaryOut(
             id=u.id,
             name=u.name,
-            email=u.email,
+            email=u.email if user.is_superuser else "",
             is_active=u.is_active,
-            is_superuser=u.is_superuser,
-            is_locked=_is_locked(u),
+            is_superuser=u.is_superuser if user.is_superuser else False,
+            is_locked=_is_locked(u) if user.is_superuser else False,
         )
         for u in users
     ]

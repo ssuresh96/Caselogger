@@ -120,6 +120,30 @@ async def test_users_list_returns_all_users(
     assert emails == {"admin@test.caselogger.internal", "agent@test.caselogger.internal"}
 
 
+async def test_users_list_redacts_sensitive_fields_for_non_admin(
+    client: AsyncClient, regular_user_token: str, superuser: User, regular_user: User
+):
+    """Security audit M-1 — a non-admin caller only needs id/name/isActive
+    for an assignee picker; email/role/lock-status must not be exposed to
+    every logged-in agent, only to admins."""
+    resp = await client.get("/users", headers=_auth(regular_user_token))
+    assert resp.status_code == 200
+    for user in resp.json():
+        assert user["email"] == ""
+        assert user["isSuperuser"] is False
+        assert user["isLocked"] is False
+        assert "name" in user and user["name"]  # still usable for a picker
+
+
+async def test_users_list_shows_full_detail_for_admin(
+    client: AsyncClient, superuser_token: str, superuser: User, regular_user: User
+):
+    resp = await client.get("/users", headers=_auth(superuser_token))
+    assert resp.status_code == 200
+    emails = {u["email"] for u in resp.json()}
+    assert emails == {"admin@test.caselogger.internal", "agent@test.caselogger.internal"}
+
+
 async def test_patch_other_user_requires_superuser(
     client: AsyncClient, regular_user_token: str, regular_user: User
 ):

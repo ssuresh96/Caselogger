@@ -199,3 +199,17 @@ async def test_import_mixed_valid_and_invalid_rows(
     assert body["imported"] == 1
     assert len(body["rejected"]) == 2
     assert {r["row"] for r in body["rejected"]} == {3, 4}
+
+
+async def test_import_rejects_oversized_file(client: AsyncClient, superuser_token: str):
+    """Security audit L-2 — the upload previously had no size cap at all
+    before being buffered into memory and parsed."""
+    from app.import_data.router import MAX_IMPORT_FILE_BYTES
+
+    oversized = b"0" * (MAX_IMPORT_FILE_BYTES + 1)
+    resp = await client.post(
+        "/admin/import/cases",
+        headers=_auth(superuser_token),
+        files={"file": ("huge.xlsx", oversized, "application/octet-stream")},
+    )
+    assert resp.status_code == 413
