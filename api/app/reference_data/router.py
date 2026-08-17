@@ -40,3 +40,8 @@ async def update_reference_item(
     item_id: str, payload: ReferenceItemUpdate, _admin: User = Depends(current_superuser)
 ) -> ReferenceItemOut:
     return await service.update_reference_item(_parse_object_id(item_id), payload)
+
+
+@router.delete("/{item_id}", status_code=http_status.HTTP_204_NO_CONTENT)
+async def delete_reference_item(item_id: str, admin: User = Depends(current_superuser)) -> None:
+    await service.delete_reference_item(_parse_object_id(item_id), admin.id)

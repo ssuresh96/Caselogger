@@ -2,6 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { map } from 'rxjs';
 import { ReferenceDataService } from '../../../core/services/reference-data.service';
 import { ReferenceItem, ReferenceKind, ReferenceTone } from '../../../core/models/reference-item.model';
@@ -9,6 +11,10 @@ import { CaseReferenceType } from '../../../core/models/case.model';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 const KIND_META: Record<ReferenceKind, { title: string; singular: string; hasToneAndClose: boolean }> = {
   category: { title: 'Categories', singular: 'Category', hasToneAndClose: false },
@@ -31,6 +37,9 @@ export class AdminReferenceListComponent {
   private readonly referenceData = inject(ReferenceDataService);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  private readonly modalService = inject(NgbModal);
+
+  readonly deletingId = signal<string | null>(null);
 
   readonly tones = TONES;
 
@@ -124,6 +133,40 @@ export class AdminReferenceListComponent {
       this.toast.success(`${item.name} is now ${item.active ? 'inactive' : 'active'}.`);
     } catch {
       this.toast.error(`Could not update ${item.name} — try again.`);
+    }
+  }
+
+  async deleteItem(item: ReferenceItem) {
+    const modalRef = this.modalService.open(ConfirmDialogComponent, { size: 'sm', centered: true });
+    const data: ConfirmDialogData = {
+      title: `Delete "${item.name}"?`,
+      message: `This permanently removes it — there's no undo. Limited to 10 ${this.meta().title.toLowerCase()} deletes per day.`,
+      confirmLabel: `Delete ${this.meta().singular}`,
+      danger: true,
+    };
+    modalRef.componentInstance.data = data;
+    let confirmed: boolean;
+    try {
+      confirmed = (await modalRef.result) === true;
+    } catch {
+      confirmed = false; // dismissed via backdrop/Escape — same as Cancel
+    }
+    if (!confirmed) {
+      return;
+    }
+
+    this.deletingId.set(item.id);
+    try {
+      await this.referenceData.delete(item.id);
+      this.toast.success(`${item.name} deleted.`);
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 429) {
+        this.toast.error(`Daily delete limit reached for ${this.meta().title.toLowerCase()} — try again tomorrow.`);
+      } else {
+        this.toast.error(`Could not delete ${item.name} — try again.`);
+      }
+    } finally {
+      this.deletingId.set(null);
     }
   }
 }

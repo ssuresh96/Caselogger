@@ -4,6 +4,7 @@ from bson import ObjectId
 from fastapi import HTTPException, status as http_status
 
 from app.core.database import database
+from app.core.rate_limit import rate_limit_delete
 from app.reference_data.models import ReferenceKind
 from app.reference_data.schemas import ReferenceItemCreate, ReferenceItemOut, ReferenceItemUpdate
 
@@ -70,3 +71,17 @@ async def update_reference_item(item_id: ObjectId, payload: ReferenceItemUpdate)
     await reference_items_collection.update_one({"_id": item_id}, {"$set": updates})
     updated_doc = await reference_items_collection.find_one({"_id": item_id})
     return _to_out(updated_doc)
+
+
+async def delete_reference_item(item_id: ObjectId, current_user_id: ObjectId) -> None:
+    """Hard delete — unlike Case's soft delete, a reference item is just a
+    dropdown option (Case stores category/product/etc. as a plain string,
+    not a foreign key), so removing it can't orphan a live reference the
+    way deleting a user or a case could. Rate-limited per admin per `kind`
+    (10/day) as the safety net against a mass-delete mistake, since there's
+    no undo."""
+    existing = await reference_items_collection.find_one({"_id": item_id})
+    if existing is None:
+        raise HTTPException(http_status.HTTP_404_NOT_FOUND, "Reference item not found")
+    rate_limit_delete(existing["kind"], current_user_id)
+    await reference_items_collection.delete_one({"_id": item_id})

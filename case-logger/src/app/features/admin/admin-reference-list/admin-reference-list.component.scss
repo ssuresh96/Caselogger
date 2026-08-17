@@ -235,6 +235,40 @@ tr:last-child td {
   border-color: transparent;
 }
 
+.row-end {
+  text-align: right;
+  width: 1%;
+}
+
+.icon-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  app-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--status-critical-tint);
+    color: var(--status-critical-text);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .empty-row {
   text-align: center;
   color: var(--text-muted);

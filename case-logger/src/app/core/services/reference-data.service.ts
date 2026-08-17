@@ -163,6 +163,15 @@ export class ReferenceDataService {
     return result;
   }
 
+  async delete(id: string): Promise<void> {
+    if (this.mockMode) {
+      this.mockItems$.next(this.mockItems$.value.filter((item) => item.id !== id));
+      return;
+    }
+    await firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/reference-data/${id}`));
+    this.refresh$.next();
+  }
+
   // --- Synchronous badge tone/label helpers, with a hardcoded fallback so
   // badges render sensibly even before reference data has loaded. ---
 

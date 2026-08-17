@@ -81,6 +81,7 @@
               <th>Allowed Reference Types</th>
             }
             <th>Status</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -107,11 +108,26 @@
                   {{ item.active ? 'Active' : 'Inactive' }}
                 </button>
               </td>
+              <td class="row-end">
+                <button
+                  type="button"
+                  class="icon-btn-delete"
+                  [disabled]="deletingId() === item.id"
+                  title="Delete"
+                  (click)="deleteItem(item)"
+                >
+                  @if (deletingId() === item.id) {
+                    <app-spinner />
+                  } @else {
+                    <app-icon name="delete" />
+                  }
+                </button>
+              </td>
             </tr>
           }
           @empty {
             <tr>
-              <td colspan="5" class="empty-row">No {{ meta().title.toLowerCase() }} yet.</td>
+              <td colspan="6" class="empty-row">No {{ meta().title.toLowerCase() }} yet.</td>
             </tr>
           }
         </tbody>
