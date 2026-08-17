@@ -1,3 +1,4 @@
+import re
 from datetime import UTC, datetime
 
 from bson import ObjectId
@@ -6,9 +7,17 @@ from fastapi import HTTPException, status as http_status
 from app.auth.schemas import UserSummary
 from app.auth.service import get_user_summaries
 from app.cases.models import ActivityEntryType
-from app.cases.schemas import ActivityEntryOut, CaseCreate, CaseImportCreate, CaseOut, CaseUpdate
+from app.cases.schemas import (
+    ActivityEntryOut,
+    CaseCreate,
+    CaseEmailCreate,
+    CaseImportCreate,
+    CaseOut,
+    CaseUpdate,
+)
 from app.common.counters import next_case_id
 from app.core.database import database
+from app.core.rate_limit import rate_limit_delete
 from app.reference_data.service import is_closing_status
 
 cases_collection = database["cases"]
@@ -67,6 +76,8 @@ async def _to_case_out(doc: dict, users_map: dict[ObjectId, UserSummary] | None 
         work_order_numbers=doc.get("work_order_numbers", []),
         date_of_closure=doc.get("date_of_closure"),
         linked_implementation_id=doc.get("linked_implementation_id"),
+        source=doc.get("source", "manual"),
+        email_conversation_id=doc.get("email_conversation_id"),
         created_by=user_or_unknown(doc["created_by"]),
         updated_by=user_or_unknown(doc["updated_by"]),
         created_at=doc["created_at"],
@@ -78,10 +89,13 @@ async def list_cases(
     *,
     status_filter: str | None,
     type_filter: str | None = None,
+    product_filter: str | None = None,
     search: str | None,
     page: int,
     page_size: int,
     assigned_to: ObjectId | None = None,
+    reported_date_from: datetime | None = None,
+    reported_date_to: datetime | None = None,
 ) -> tuple[list[CaseOut], int]:
     query: dict = {"deleted": {"$ne": True}}
     if status_filter:
@@ -92,14 +106,31 @@ async def list_cases(
     if type_filter:
         types = [t for t in type_filter.split(",") if t]
         query["type"] = types[0] if len(types) == 1 else {"$in": types}
+    if product_filter:
+        products = [p for p in product_filter.split(",") if p]
+        query["product"] = products[0] if len(products) == 1 else {"$in": products}
     if assigned_to:
         query["assigned_to"] = assigned_to
+    if reported_date_from or reported_date_to:
+        date_query: dict = {}
+        if reported_date_from:
+            date_query["$gte"] = reported_date_from
+        if reported_date_to:
+            date_query["$lte"] = reported_date_to
+        query["reported_date"] = date_query
     if search:
+        # Security audit H-1: `search` is user-controlled and was previously
+        # passed straight into $regex, letting a caller inject regex syntax
+        # (unintended wildcard/anchor semantics, and — at larger data volumes
+        # than today's — a ReDoS vector via catastrophic backtracking).
+        # re.escape() makes it a literal substring match, same as any user
+        # would expect "search" to behave, while closing that off.
+        escaped = re.escape(search)
         query["$or"] = [
-            {"case_id": {"$regex": search, "$options": "i"}},
-            {"customer": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}},
-            {"reporter_name": {"$regex": search, "$options": "i"}},
+            {"case_id": {"$regex": escaped, "$options": "i"}},
+            {"customer": {"$regex": escaped, "$options": "i"}},
+            {"description": {"$regex": escaped, "$options": "i"}},
+            {"reporter_name": {"$regex": escaped, "$options": "i"}},
         ]
 
     total = await cases_collection.count_documents(query)
@@ -150,6 +181,8 @@ async def create_case(payload: CaseCreate, current_user_id: ObjectId) -> CaseOut
         "work_order_numbers": [],
         "date_of_closure": now if is_closing else None,
         "linked_implementation_id": None,
+        "source": "manual",
+        "email_conversation_id": None,
         "created_by": current_user_id,
         "updated_by": current_user_id,
         "created_at": now,
@@ -198,6 +231,8 @@ async def create_case_from_import(payload: CaseImportCreate, current_user_id: Ob
         "work_order_numbers": payload.work_order_numbers,
         "date_of_closure": now if is_closing else None,
         "linked_implementation_id": None,
+        "source": "import",
+        "email_conversation_id": None,
         "created_by": current_user_id,
         "updated_by": current_user_id,
         "created_at": now,
@@ -218,6 +253,70 @@ async def create_case_from_import(payload: CaseImportCreate, current_user_id: Ob
     )
 
     return await _to_case_out(doc)
+
+
+async def create_case_from_email(payload: CaseEmailCreate, current_user_id: ObjectId) -> CaseOut:
+    """Email agent (plan: email-to-case), new-case path — like
+    `create_case_from_import()` but stamps `source="email"` and
+    `email_conversation_id` so a later reply on the same Microsoft Graph
+    thread can be matched back to this case via `find_case_by_conversation_id()`
+    instead of creating a duplicate. `current_user_id` is the email agent's
+    own service-account user (see `app.email_agent`), not a human."""
+    now = datetime.now(UTC)
+    is_closing = await is_closing_status(payload.status)
+    doc = {
+        "case_id": await next_case_id(),
+        "reported_date": payload.reported_date,
+        "reporter_type": payload.reporter_type,
+        "reporter_name": payload.reporter_name,
+        "customer": payload.customer,
+        "product": payload.product,
+        "category": payload.category,
+        "description": payload.description,
+        "assigned_to": payload.assigned_to,
+        "status": payload.status,
+        "type": payload.type,
+        "market": payload.market,
+        "remarks": "",
+        "resolution": "",
+        "bug_number": None,
+        "task_numbers": [],
+        "work_order_numbers": [],
+        "date_of_closure": now if is_closing else None,
+        "linked_implementation_id": None,
+        "source": "email",
+        "email_conversation_id": payload.email_conversation_id,
+        "created_by": current_user_id,
+        "updated_by": current_user_id,
+        "created_at": now,
+        "updated_at": now,
+        "deleted": False,
+        "deleted_at": None,
+        "deleted_by": None,
+    }
+    result = await cases_collection.insert_one(doc)
+    doc["_id"] = result.inserted_id
+
+    assignee_map = await get_user_summaries({payload.assigned_to})
+    assignee = assignee_map.get(payload.assigned_to)
+    await _log_activity(
+        doc["_id"],
+        current_user_id,
+        f"Case created and assigned to {assignee.name if assignee else 'Unknown User'} (from an inbound email)",
+    )
+
+    return await _to_case_out(doc)
+
+
+async def find_case_by_conversation_id(conversation_id: str) -> CaseOut | None:
+    """Email agent reply-detection — plan: email-to-case. A hit means the
+    new email is a reply to a thread that already produced a case, so it
+    should be appended via `add_comment()` rather than creating a
+    duplicate. Deleted cases are excluded like everywhere else."""
+    doc = await cases_collection.find_one(
+        {"email_conversation_id": conversation_id, "deleted": {"$ne": True}}
+    )
+    return await _to_case_out(doc) if doc else None
 
 
 async def update_case(case_id: ObjectId, payload: CaseUpdate, current_user_id: ObjectId) -> CaseOut:
@@ -247,10 +346,15 @@ async def update_case(case_id: ObjectId, payload: CaseUpdate, current_user_id: O
 
 async def delete_case(case_id: ObjectId, current_user_id: ObjectId) -> None:
     """Soft delete — the case is hidden from `list_cases()`/`get_case()`
-    but never physically removed, so a mistaken delete stays recoverable."""
+    but never physically removed, so a mistaken delete stays recoverable.
+    Rate-limited 10/day per user (security audit M-2) — same protection
+    already applied to reference-data delete, closing the gap where a
+    compromised or careless account could script through the whole backlog
+    with no cap at all."""
     existing = await cases_collection.find_one({"_id": case_id})
     if existing is None or existing.get("deleted"):
         raise HTTPException(http_status.HTTP_404_NOT_FOUND, "Case not found")
+    rate_limit_delete("case", current_user_id)
 
     now = datetime.now(UTC)
     await cases_collection.update_one(

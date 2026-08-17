@@ -28,6 +28,44 @@
           <option [value]="status">{{ referenceData.statusLabel(status) }}</option>
         }
       </select>
+
+      <select class="filter-select" [value]="productFilter()" (change)="updateProduct($any($event.target).value)">
+        <option value="all">All products</option>
+        @for (product of productOptions(); track product) {
+          <option [value]="product">{{ product }}</option>
+        }
+      </select>
+
+      @if (scope === 'all') {
+        <select
+          class="filter-select"
+          [value]="assignedToFilter()"
+          (change)="updateAssignedTo($any($event.target).value)"
+        >
+          <option value="all">All assignees</option>
+          @for (user of assignableUsers(); track user.id) {
+            <option [value]="user.id">{{ user.name }}</option>
+          }
+        </select>
+      }
+
+      <div class="date-range">
+        <input
+          type="date"
+          class="filter-select"
+          aria-label="Reported from"
+          [value]="reportedFrom()"
+          (change)="updateReportedFrom($any($event.target).value)"
+        />
+        <span class="date-range-sep">–</span>
+        <input
+          type="date"
+          class="filter-select"
+          aria-label="Reported to"
+          [value]="reportedTo()"
+          (change)="updateReportedTo($any($event.target).value)"
+        />
+      </div>
     </div>
 
     <div class="table-wrap">

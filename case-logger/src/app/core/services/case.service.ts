@@ -58,8 +58,11 @@ export interface CaseListParams {
   pageSize: number;
   status?: string; // comma-separated for "one of" (e.g. "Open,InProgress,Pending")
   type?: string; // comma-separated
+  product?: string; // comma-separated
   search?: string;
   assignedTo?: string; // user id
+  reportedDateFrom?: string; // ISO date/datetime, inclusive
+  reportedDateTo?: string; // ISO date/datetime, inclusive
 }
 
 function userByName(name: string): UserSummary {
@@ -103,6 +106,8 @@ function seed(input: SeedInput): Omit<Case, 'id'> {
     workOrderNumbers: [],
     dateOfClosure: input.status === 'Resolved' ? reportedDate : null,
     linkedImplementationId: null,
+    source: 'manual',
+    emailConversationId: null,
     createdAt: reportedDate,
     updatedAt: reportedDate,
     createdBy: assignedTo,
@@ -429,11 +434,17 @@ export class CaseService {
         map((cases) => {
           const statuses = params.status ? params.status.split(',') : null;
           const types = params.type ? params.type.split(',') : null;
+          const products = params.product ? params.product.split(',') : null;
           const term = params.search?.trim().toLowerCase();
+          const from = params.reportedDateFrom ? new Date(params.reportedDateFrom).getTime() : null;
+          const to = params.reportedDateTo ? new Date(params.reportedDateTo).getTime() : null;
           const filtered = cases
             .filter((c) => (statuses ? statuses.includes(c.status) : true))
             .filter((c) => (types ? types.includes(c.type) : true))
+            .filter((c) => (products ? products.includes(c.product) : true))
             .filter((c) => (params.assignedTo ? c.assignedTo.id === params.assignedTo : true))
+            .filter((c) => (from ? new Date(c.reportedDate).getTime() >= from : true))
+            .filter((c) => (to ? new Date(c.reportedDate).getTime() <= to : true))
             .filter((c) =>
               term
                 ? c.description.toLowerCase().includes(term) ||
@@ -456,8 +467,11 @@ export class CaseService {
               pageSize: params.pageSize,
               ...(params.status ? { status: params.status } : {}),
               ...(params.type ? { type: params.type } : {}),
+              ...(params.product ? { product: params.product } : {}),
               ...(params.search ? { search: params.search } : {}),
               ...(params.assignedTo ? { assignedTo: params.assignedTo } : {}),
+              ...(params.reportedDateFrom ? { reportedDateFrom: params.reportedDateFrom } : {}),
+              ...(params.reportedDateTo ? { reportedDateTo: params.reportedDateTo } : {}),
             },
           })
           .pipe(catchError(() => of({ items: [], total: 0 } as CaseListResponse))),
@@ -502,6 +516,8 @@ export class CaseService {
         workOrderNumbers: [],
         dateOfClosure: input.status === 'Resolved' ? now : null,
         linkedImplementationId: null,
+        source: 'manual',
+        emailConversationId: null,
         createdBy: assignedTo,
         updatedBy: assignedTo,
         createdAt: now,

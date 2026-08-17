@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -29,8 +31,11 @@ def _parse_object_id(value: str) -> ObjectId:
 async def list_cases(
     status_filter: str | None = Query(default=None, alias="status"),
     type_filter: str | None = Query(default=None, alias="type"),
+    product_filter: str | None = Query(default=None, alias="product"),
     search: str | None = None,
     assigned_to: str | None = Query(default=None, alias="assignedTo"),
+    reported_date_from: datetime | None = Query(default=None, alias="reportedDateFrom"),
+    reported_date_to: datetime | None = Query(default=None, alias="reportedDateTo"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100, alias="pageSize"),
     _user: User = Depends(current_active_user),
@@ -38,10 +43,13 @@ async def list_cases(
     items, total = await service.list_cases(
         status_filter=status_filter,
         type_filter=type_filter,
+        product_filter=product_filter,
         search=search,
         page=page,
         page_size=page_size,
         assigned_to=_parse_object_id(assigned_to) if assigned_to else None,
+        reported_date_from=reported_date_from,
+        reported_date_to=reported_date_to,
     )
     return CaseListOut(items=items, total=total, page=page, pageSize=page_size)
 

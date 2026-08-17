@@ -202,6 +202,46 @@ async def test_list_cases_type_and_assigned_to_filter(
     assert body["items"][0]["assignedTo"]["id"] == str(regular_user.id)
 
 
+async def test_list_cases_product_filter(client: AsyncClient, superuser_token: str, superuser: User):
+    headers = _auth(superuser_token)
+    await client.post("/cases", json=_case_payload(str(superuser.id), product="AOS"), headers=headers)
+    await client.post("/cases", json=_case_payload(str(superuser.id), product="AQC"), headers=headers)
+
+    resp = await client.get("/cases", params={"product": "AQC"}, headers=headers)
+    body = resp.json()
+    assert body["total"] == 1
+    assert body["items"][0]["product"] == "AQC"
+
+    resp = await client.get("/cases", params={"product": "AOS,AQC"}, headers=headers)
+    assert resp.json()["total"] == 2
+
+
+async def test_list_cases_reported_date_range_filter(
+    client: AsyncClient, superuser_token: str, superuser: User
+):
+    headers = _auth(superuser_token)
+    old_date = datetime(2025, 1, 10, tzinfo=UTC).isoformat()
+    mid_date = datetime(2025, 6, 15, tzinfo=UTC).isoformat()
+    new_date = datetime(2025, 12, 20, tzinfo=UTC).isoformat()
+    for reported_date in (old_date, mid_date, new_date):
+        resp = await client.post(
+            "/cases", json=_case_payload(str(superuser.id), reportedDate=reported_date), headers=headers
+        )
+        assert resp.status_code == 201
+
+    resp = await client.get(
+        "/cases",
+        params={"reportedDateFrom": "2025-03-01T00:00:00Z", "reportedDateTo": "2025-09-01T00:00:00Z"},
+        headers=headers,
+    )
+    body = resp.json()
+    assert body["total"] == 1
+    assert body["items"][0]["reportedDate"].startswith("2025-06-15")
+
+    resp = await client.get("/cases", params={"reportedDateFrom": "2025-12-01T00:00:00Z"}, headers=headers)
+    assert resp.json()["total"] == 1
+
+
 async def test_list_cases_search(client: AsyncClient, superuser_token: str, superuser: User):
     headers = _auth(superuser_token)
     await client.post(
@@ -219,6 +259,31 @@ async def test_list_cases_search(client: AsyncClient, superuser_token: str, supe
     body = resp.json()
     assert body["total"] == 1
     assert body["items"][0]["customer"] == "Travco LLC"
+
+
+async def test_list_cases_search_treats_regex_metacharacters_as_literal(
+    client: AsyncClient, superuser_token: str, superuser: User
+):
+    """Security audit H-1 — `search` must not be interpretable as regex
+    syntax. A search containing metacharacters should match only a literal
+    substring, not act as a wildcard/anchor/alternation."""
+    headers = _auth(superuser_token)
+    await client.post(
+        "/cases", json=_case_payload(str(superuser.id), customer="Acme (UAE)"), headers=headers
+    )
+    await client.post(
+        "/cases", json=_case_payload(str(superuser.id), customer="Acme UAE"), headers=headers
+    )
+
+    resp = await client.get("/cases", params={"search": "Acme (UAE)"}, headers=headers)
+    body = resp.json()
+    assert body["total"] == 1
+    assert body["items"][0]["customer"] == "Acme (UAE)"
+
+    # A pattern that would match "everything" if treated as regex (".*")
+    # must instead be searched for as the literal two-character string.
+    resp = await client.get("/cases", params={"search": ".*"}, headers=headers)
+    assert resp.json()["total"] == 0
 
 
 async def test_list_cases_search_matches_reporter_name(
@@ -474,3 +539,23 @@ async def test_delete_case_logs_activity_entry(
     entries = await database["activity_log"].find({"case_id": ObjectId(case_id)}).to_list(None)
     summaries = {e["change_summary"] for e in entries}
     assert "Case deleted" in summaries
+
+
+async def test_delete_case_daily_limit(client: AsyncClient, superuser_token: str, superuser: User):
+    """Security audit M-2 — case delete previously had no cap at all;
+    now shares the same 10/day/user limiter as reference-data delete."""
+    headers = _auth(superuser_token)
+
+    for _ in range(10):
+        resp = await client.post("/cases", json=_case_payload(str(superuser.id)), headers=headers)
+        case_id = resp.json()["id"]
+        resp = await client.delete(f"/cases/{case_id}", headers=headers)
+        assert resp.status_code == 204, resp.text
+
+    resp = await client.post("/cases", json=_case_payload(str(superuser.id)), headers=headers)
+    eleventh_id = resp.json()["id"]
+    resp = await client.delete(f"/cases/{eleventh_id}", headers=headers)
+    assert resp.status_code == 429
+
+    resp = await client.get(f"/cases/{eleventh_id}", headers=headers)
+    assert resp.status_code == 200  # survives the rejected delete
