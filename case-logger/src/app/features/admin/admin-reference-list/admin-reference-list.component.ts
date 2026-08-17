@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -30,6 +30,7 @@ const TONES: ReferenceTone[] = ['info', 'progress', 'warning', 'serious', 'criti
   selector: 'app-admin-reference-list',
   imports: [ReactiveFormsModule, IconComponent, SpinnerComponent],
   templateUrl: './admin-reference-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-reference-list.component.scss',
 })
 export class AdminReferenceListComponent {

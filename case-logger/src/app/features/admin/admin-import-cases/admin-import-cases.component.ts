@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ImportResult, ImportService } from '../../../core/services/import.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
@@ -8,6 +8,7 @@ import { ToastService } from '../../../core/services/toast.service';
   selector: 'app-admin-import-cases',
   imports: [IconComponent, SpinnerComponent],
   templateUrl: './admin-import-cases.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-import-cases.component.scss',
 })
 export class AdminImportCasesComponent {

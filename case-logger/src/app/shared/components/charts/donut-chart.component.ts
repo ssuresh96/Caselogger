@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 export interface DonutSegment {
   label: string;
@@ -20,6 +20,7 @@ const GAP = 3;
   selector: 'app-donut-chart',
   standalone: true,
   templateUrl: './donut-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './donut-chart.component.scss',
 })
 export class DonutChartComponent {

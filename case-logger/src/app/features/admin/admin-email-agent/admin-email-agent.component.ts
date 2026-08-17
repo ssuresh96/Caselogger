@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GraphSettings, GraphSettingsService } from '../../../core/services/graph-settings.service';
@@ -10,6 +10,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   selector: 'app-admin-email-agent',
   imports: [ReactiveFormsModule, IconComponent, SpinnerComponent, DatePipe],
   templateUrl: './admin-email-agent.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-email-agent.component.scss',
 })
 export class AdminEmailAgentComponent {

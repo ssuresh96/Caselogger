@@ -1,5 +1,5 @@
-import { Component, ElementRef, HostListener, inject, input, signal, viewChild, forwardRef } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, ElementRef, HostListener, inject, input, signal, viewChild, forwardRef, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
+
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
 import { BadgeComponent, BadgeTone } from '../badge/badge.component';
@@ -52,6 +52,7 @@ export interface StatusOption {
     </div>
   `,
   styleUrl: './status-select.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -131,7 +132,7 @@ export class StatusSelectComponent implements ControlValueAccessor {
   }
 
   @HostListener('keydown.escape', ['$event'])
-  onEscape(event: KeyboardEvent) {
+  onEscape(event: Event) {
     if (this.open()) {
       event.preventDefault();
       event.stopPropagation();

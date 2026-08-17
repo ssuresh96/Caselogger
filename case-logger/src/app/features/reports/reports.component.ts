@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -125,6 +125,7 @@ function pivotTeamHistory(monthly: TeamWorkloadRow[][]): TeamMonthRow[] {
   selector: 'app-reports',
   imports: [DecimalPipe, IconComponent, DonutChartComponent, LineChartComponent, BarChartComponent, MonthPickerComponent],
   templateUrl: './reports.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './reports.component.scss',
 })
 export class ReportsComponent {

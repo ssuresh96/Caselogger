@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -37,6 +37,7 @@ const TITLE_MAX_LENGTH = 72;
     StatusSelectComponent,
   ],
   templateUrl: './case-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './case-detail.component.scss',
 })
 export class CaseDetailComponent {

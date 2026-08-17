@@ -1,5 +1,5 @@
-import { Component, ElementRef, HostListener, computed, forwardRef, inject, signal, viewChild } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, ElementRef, HostListener, computed, forwardRef, inject, signal, viewChild, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
+
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
 
@@ -85,6 +85,7 @@ function todayIso(): string {
     </div>
   `,
   styleUrl: './date-picker.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -244,7 +245,7 @@ export class DatePickerComponent implements ControlValueAccessor {
   // document-level listener and dismisses the modal underneath instead of
   // just this calendar.
   @HostListener('keydown.escape', ['$event'])
-  onEscape(event: KeyboardEvent) {
+  onEscape(event: Event) {
     if (this.open()) {
       event.preventDefault();
       event.stopPropagation();

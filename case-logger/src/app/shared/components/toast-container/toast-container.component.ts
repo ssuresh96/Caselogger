@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ToastService, ToastVariant } from '../../../core/services/toast.service';
 import { IconComponent } from '../icon/icon.component';
@@ -44,6 +44,7 @@ const VARIANT_TITLE: Record<ToastVariant, string> = {
     </div>
   `,
   styleUrl: './toast-container.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger('toastEnter', [
       transition(':enter', [

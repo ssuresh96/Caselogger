@@ -1,5 +1,5 @@
-import { Component, ElementRef, HostListener, computed, effect, forwardRef, inject, input, signal, viewChild } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, ElementRef, HostListener, computed, effect, forwardRef, inject, input, signal, viewChild, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
+
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
 
@@ -77,6 +77,7 @@ export interface SelectOption {
     </div>
   `,
   styleUrl: './select.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

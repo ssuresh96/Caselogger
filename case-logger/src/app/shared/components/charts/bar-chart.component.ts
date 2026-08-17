@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 const WIDTH = 560;
 const HEIGHT = 200;
@@ -21,6 +21,7 @@ interface PlottedBar {
   selector: 'app-bar-chart',
   standalone: true,
   templateUrl: './bar-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bar-chart.component.scss',
 })
 export class BarChartComponent {

@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -25,6 +25,7 @@ function toIsoDateTime(dateInput: string): string {
   selector: 'app-case-intake',
   imports: [ReactiveFormsModule, IconComponent, SpinnerComponent, SelectComponent, DatePickerComponent],
   templateUrl: './case-intake.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './case-intake.component.scss',
 })
 export class CaseIntakeComponent {

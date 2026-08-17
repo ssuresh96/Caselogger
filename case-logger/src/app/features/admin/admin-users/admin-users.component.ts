@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminUser, UsersService } from '../../../core/services/users.service';
@@ -11,6 +11,7 @@ import { ToastService } from '../../../core/services/toast.service';
   selector: 'app-admin-users',
   imports: [ReactiveFormsModule, IconComponent, SpinnerComponent],
   templateUrl: './admin-users.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-users.component.scss',
 })
 export class AdminUsersComponent {

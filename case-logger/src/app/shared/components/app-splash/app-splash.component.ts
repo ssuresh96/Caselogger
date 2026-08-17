@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 // Covers the one real blank-page gap left in the app: on a hard reload while
@@ -26,6 +26,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
     </div>
   `,
   styleUrl: './app-splash.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger('splashFade', [
       transition(':leave', [animate('220ms ease-in', style({ opacity: 0 }))]),

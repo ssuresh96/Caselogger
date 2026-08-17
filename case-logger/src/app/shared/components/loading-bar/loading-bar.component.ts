@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
@@ -10,6 +10,7 @@ import { LoadingService } from '../../../core/services/loading.service';
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './loading-bar.component.scss',
 })
 export class LoadingBarComponent {

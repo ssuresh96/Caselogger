@@ -1,5 +1,5 @@
-import { Component, ElementRef, HostListener, computed, inject, input, model, signal, viewChild } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, ElementRef, HostListener, computed, inject, input, model, signal, viewChild, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
+
 import { IconComponent } from '../icon/icon.component';
 
 interface MonthCell {
@@ -75,6 +75,7 @@ function currentMonthValue(): string {
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './month-picker.component.scss',
 })
 export class MonthPickerComponent {
@@ -164,7 +165,7 @@ export class MonthPickerComponent {
   }
 
   @HostListener('keydown.escape', ['$event'])
-  onEscape(event: KeyboardEvent) {
+  onEscape(event: Event) {
     if (this.open()) {
       event.preventDefault();
       event.stopPropagation();

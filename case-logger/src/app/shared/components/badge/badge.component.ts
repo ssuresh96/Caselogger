@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 export type BadgeTone = 'good' | 'warning' | 'serious' | 'critical' | 'info' | 'progress';
 
@@ -6,6 +6,7 @@ export type BadgeTone = 'good' | 'warning' | 'serious' | 'critical' | 'info' | '
   selector: 'app-badge',
   standalone: true,
   template: `<span class="badge" [class]="'badge-' + tone()">{{ label() }}</span>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     .badge {
       display: inline-flex;

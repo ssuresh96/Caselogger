@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 export interface LineSeries {
   name: string;
@@ -24,6 +24,7 @@ const PAD_BOTTOM = 26;
   selector: 'app-line-chart',
   standalone: true,
   templateUrl: './line-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './line-chart.component.scss',
 })
 export class LineChartComponent {

@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 // Keeps every call site using the same short logical names the app used
 // under Angular Material (`<mat-icon>edit</mat-icon>`) — only this map
@@ -43,6 +43,7 @@ const ICON_MAP: Record<string, string> = {
 @Component({
   selector: 'app-icon',
   template: `<i class="bi" [class]="'bi-' + glyph()" aria-hidden="true"></i>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     :host {
       display: inline-flex;

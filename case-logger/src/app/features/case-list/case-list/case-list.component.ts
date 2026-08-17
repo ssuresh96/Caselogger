@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -22,6 +22,7 @@ const EMPTY_RESPONSE: CaseListResponse = { items: [], total: 0 };
   selector: 'app-case-list',
   imports: [DatePipe, IconComponent, SpinnerComponent, NgbDropdownModule, BadgeComponent],
   templateUrl: './case-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './case-list.component.scss',
 })
 export class CaseListComponent {

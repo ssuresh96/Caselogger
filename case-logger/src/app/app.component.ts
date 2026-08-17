@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterOutlet, NavigationCancel, NavigationEnd, NavigationError } from '@angular/router';
 import { filter, take } from 'rxjs';
 import { LoadingBarComponent } from './shared/components/loading-bar/loading-bar.component';
@@ -9,6 +9,7 @@ import { AppSplashComponent } from './shared/components/app-splash/app-splash.co
   selector: 'app-root',
   imports: [RouterOutlet, LoadingBarComponent, ToastContainerComponent, AppSplashComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
