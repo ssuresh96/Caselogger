@@ -1,0 +1,22 @@
+name: Poll email-to-case agent
+
+# Triggers a poll cycle on the deployed API every 5-10 minutes — the actual
+# Graph fetch / classification / case creation logic all lives server-side
+# (app/email_agent), this workflow only supplies the schedule. Same pattern
+# as keep-render-warm.yml: free, reliable, no extra infrastructure to run
+# or keep alive.
+on:
+  schedule:
+    - cron: "*/7 * * * *"
+  workflow_dispatch: {} # manual "Run workflow" button for on-demand/testing
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger a poll cycle
+        run: |
+          curl -sf -X POST https://caselogger-api.onrender.com/internal/email-agent/run \
+            -H "X-Internal-Token: ${{ secrets.EMAIL_AGENT_INTERNAL_TOKEN }}" \
+            --max-time 60 \
+            || echo "Poll request failed or timed out — could be mid cold-start, check Render logs if this repeats."

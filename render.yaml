@@ -23,3 +23,15 @@ services:
       # wiping out the real Vercel URL each time it was set via the API.
       - key: CORS_ORIGINS
         sync: false
+      # Email-to-case agent — all secrets, all managed directly in Render's
+      # dashboard/API, same rationale as MONGODB_URI/CORS_ORIGINS above.
+      # Feature stays inert (see app/email_agent/service.py's
+      # is_configured()) until every one of these is actually set.
+      # Microsoft Graph credentials are NOT here — an admin enters those
+      # from the app itself (Admin > Email Agent), stored in Mongo.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: EMAIL_AGENT_INTERNAL_TOKEN
+        sync: false
+      - key: EMAIL_AGENT_SERVICE_USER_EMAIL
+        sync: false

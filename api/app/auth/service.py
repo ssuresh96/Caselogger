@@ -22,3 +22,13 @@ async def list_all_user_summaries() -> list[UserSummary]:
     collection directly, same rationale as `get_user_summaries()`."""
     users = await User.find_all().to_list()
     return [UserSummary(id=u.id, name=u.name, email=u.email) for u in users]
+
+
+async def get_user_by_email(email: str) -> User | None:
+    """Email-address lookup for a full `User` document — used by
+    `app.email_agent` to resolve its configured service-account user
+    (`settings.email_agent_service_user_email`), same "don't query `users`
+    directly" rationale as the summary helpers above."""
+    if not email:
+        return None
+    return await User.find_one(User.email == email)

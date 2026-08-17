@@ -13,5 +13,9 @@ pydantic-settings==2.15.0
 python-dotenv==1.2.2
 openpyxl==3.1.5  # scripts/migrate_excel.py (Phase 5) and app/import_data (Phase 13)
 limits==5.8.0  # login rate limiting (T7.1) — see app/core/rate_limit.py for why not slowapi
+# Was only a transitive dep of fastapi[standard] (its TestClient) before —
+# now a direct runtime dependency too, via app/email_agent/graph_client.py.
+httpx==0.28.1
+anthropic==0.122.0  # app/email_agent/classifier.py
 pytest==9.1.1  # tests/ (Phase 8) only — not needed at runtime
 pytest-asyncio==1.4.0  # tests/ (Phase 8) only — not needed at runtime

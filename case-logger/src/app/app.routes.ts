@@ -82,6 +82,15 @@ export const routes: Routes = [
             (m) => m.AdminImportCasesComponent,
           ),
       },
+      {
+        path: 'admin/email-agent',
+        canActivate: [roleGuard],
+        data: { role: 'admin', title: 'Admin · Email Agent' },
+        loadComponent: () =>
+          import('./features/admin/admin-email-agent/admin-email-agent.component').then(
+            (m) => m.AdminEmailAgentComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

@@ -10,6 +10,7 @@ CaseType = Literal["Support", "Implementation", "Deactivation", "Escalation"]
 ReporterType = Literal["Customer", "Internal"]
 ReferenceType = Literal["Bug", "Task", "Workorder"]
 ActivityEntryType = Literal["system", "comment"]
+CaseSource = Literal["manual", "import", "email"]
 
 
 class Case(BaseModel):
@@ -45,6 +46,13 @@ class Case(BaseModel):
     work_order_numbers: list[str] = []
     date_of_closure: datetime | None = None
     linked_implementation_id: PyObjectId | None = None
+    # Email agent (plan: email-to-case) — source defaults to "manual" for
+    # every pre-existing case; email_conversation_id is Microsoft Graph's
+    # native thread id, set only on cases created from an inbound email, and
+    # is how a later reply in the same thread gets matched back to this case
+    # instead of creating a duplicate.
+    source: CaseSource = "manual"
+    email_conversation_id: str | None = None
     created_by: PyObjectId
     updated_by: PyObjectId
     created_at: datetime

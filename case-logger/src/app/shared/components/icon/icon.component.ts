@@ -29,6 +29,7 @@ const ICON_MAP: Record<string, string> = {
   more_horiz: 'three-dots',
   more_vert: 'three-dots-vertical',
   notifications: 'bell-fill',
+  save: 'save-fill',
   schedule: 'clock-history',
   science: 'flask',
   search: 'search',

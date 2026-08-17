@@ -142,6 +142,7 @@ export class ShellComponent {
         { label: 'Statuses', path: '/admin/reference/status' },
         { label: 'Types', path: '/admin/reference/type' },
         { label: 'Import Cases', path: '/admin/import-cases' },
+        { label: 'Email Agent', path: '/admin/email-agent' },
       ],
     },
   ];

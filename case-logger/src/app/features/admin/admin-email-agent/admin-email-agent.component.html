@@ -1,0 +1,100 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div>
+      <h2>Email Agent</h2>
+      <p>Microsoft Graph API credentials the email-to-case agent uses to read the shared support inbox.</p>
+    </div>
+  </div>
+
+  <p class="info-banner">
+    These values are stored in the database, not as server environment variables — save them here
+    instead of asking anyone to redeploy. The agent stays inactive until every field below is set.
+  </p>
+
+  @if (loading()) {
+    <div class="card loading-card">
+      <app-spinner />
+      <span>Loading settings…</span>
+    </div>
+  } @else {
+    @if (saved(); as s) {
+      <div class="card table-card">
+        <h3>Current Settings</h3>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr>
+                <th>Tenant ID</th>
+                <td>{{ s.tenantId || '—' }}</td>
+              </tr>
+              <tr>
+                <th>Client ID</th>
+                <td>{{ s.clientId || '—' }}</td>
+              </tr>
+              <tr>
+                <th>Client Secret</th>
+                <td>
+                  @if (s.hasClientSecret) {
+                    <span class="chip chip-active">Configured</span>
+                  } @else {
+                    <span class="chip">Not set</span>
+                  }
+                </td>
+              </tr>
+              <tr>
+                <th>Shared Mailbox</th>
+                <td>{{ s.mailbox || '—' }}</td>
+              </tr>
+              <tr>
+                <th>Last Saved</th>
+                <td>{{ s.updatedAt ? (s.updatedAt | date: 'medium') : 'Never' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <div class="card">
+      <h3>Edit</h3>
+      <form [formGroup]="form" class="settings-form" (ngSubmit)="submit()">
+        <label class="field">
+          <span>Tenant ID *</span>
+          <input type="text" formControlName="tenantId" placeholder="Azure AD directory (tenant) ID" />
+        </label>
+        <label class="field">
+          <span>Client ID *</span>
+          <input type="text" formControlName="clientId" placeholder="App registration's application (client) ID" />
+        </label>
+        <label class="field">
+          <span>Client Secret {{ saved()?.hasClientSecret ? '' : '*' }}</span>
+          <input
+            type="password"
+            formControlName="clientSecret"
+            [placeholder]="saved()?.hasClientSecret ? 'Configured — leave blank to keep it' : 'Not set'"
+            autocomplete="new-password"
+          />
+        </label>
+        <label class="field">
+          <span>Shared Mailbox *</span>
+          <input type="email" formControlName="mailbox" placeholder="support@yourcompany.com" />
+        </label>
+
+        @if (errorMessage()) {
+          <p class="error-text">{{ errorMessage() }}</p>
+        }
+
+        <div class="form-footer">
+          <button type="submit" class="primary-btn" [disabled]="form.invalid || saving()">
+            @if (saving()) {
+              <app-spinner />
+            } @else {
+              <app-icon name="save" />
+            }
+            {{ saving() ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

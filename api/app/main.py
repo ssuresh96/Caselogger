@@ -11,6 +11,8 @@ from app.cases.router import router as cases_router
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.rate_limit import rate_limit_login
+from app.email_agent.router import admin_router as email_agent_admin_router
+from app.email_agent.router import router as email_agent_router
 from app.import_data.router import router as import_data_router
 from app.reference_data.router import router as reference_data_router
 from app.reports.router import router as reports_router
@@ -57,6 +59,8 @@ app.include_router(cases_router)
 app.include_router(reference_data_router)
 app.include_router(reports_router)
 app.include_router(import_data_router)
+app.include_router(email_agent_router)
+app.include_router(email_agent_admin_router)
 
 
 @app.get("/health", tags=["health"])

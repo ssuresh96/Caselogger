@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import Field
 
 from app.auth.schemas import UserSummary
-from app.cases.models import ActivityEntryType, CaseStatus, CaseType, ReporterType
+from app.cases.models import ActivityEntryType, CaseSource, CaseStatus, CaseType, ReporterType
 from app.common.camel import CamelModel
 from app.common.object_id import PyObjectId
 
@@ -52,6 +52,27 @@ class CaseImportCreate(CamelModel):
     work_order_numbers: list[str] = []
 
 
+class CaseEmailCreate(CamelModel):
+    """Used only by `app.email_agent` (email-to-case, new-case path) — like
+    `CaseImportCreate` in that it's a one-shot creation with no later
+    edit-form step, but additionally carries `email_conversation_id` so the
+    resulting case can be matched against later replies in the same
+    Microsoft Graph email thread."""
+
+    reported_date: datetime
+    reporter_type: ReporterType
+    reporter_name: str
+    customer: str
+    product: str
+    description: str
+    category: str
+    assigned_to: PyObjectId
+    status: CaseStatus
+    type: CaseType
+    market: str = ""
+    email_conversation_id: str
+
+
 class CaseUpdate(CamelModel):
     reporter_type: ReporterType | None = None
     reporter_name: str | None = None
@@ -91,6 +112,8 @@ class CaseOut(CamelModel):
     work_order_numbers: list[str]
     date_of_closure: datetime | None
     linked_implementation_id: PyObjectId | None
+    source: CaseSource
+    email_conversation_id: str | None
     created_by: UserSummary
     updated_by: UserSummary
     created_at: datetime

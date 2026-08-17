@@ -4,6 +4,7 @@ export type CaseStatus = 'Open' | 'InProgress' | 'Pending' | 'Resolved';
 export type CaseType = 'Implementation' | 'Support' | 'Deactivation' | 'Escalation';
 export type ReporterType = 'Customer' | 'Internal';
 export type CaseReferenceType = 'Bug' | 'Task' | 'Workorder';
+export type CaseSource = 'manual' | 'import' | 'email';
 
 export interface Case {
   id: string;
@@ -26,6 +27,8 @@ export interface Case {
   workOrderNumbers: string[];
   dateOfClosure: string | null;
   linkedImplementationId: string | null;
+  source: CaseSource;
+  emailConversationId: string | null;
   createdBy: UserSummary;
   updatedBy: UserSummary;
   createdAt: string;
